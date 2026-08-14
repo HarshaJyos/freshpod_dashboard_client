@@ -100,18 +100,26 @@ export default function PaymentsHistory() {
     }
 
     try {
-      const exportData = payments.map((p) => ({
-        'Machine Node ID': p.machineId || 'MQTT_TRIGGER',
-        'Payment Ref ID': p.paymentId || 'N/A',
-        'QR ID Reference': p.qrId || p.qr_id || 'N/A',
-        'Payment Method': p.method || 'N/A',
-        'Payer Name': p.customerName || p.payerName || 'Anonymous',
-        'Payer Email': p.customerEmail || p.payerEmail || 'N/A',
-        'Payer Phone': p.customerPhone || p.payerPhone || 'N/A',
-        'Amount (INR)': p.amount || 0,
-        'Status': p.status || 'N/A',
-        'Timestamp': p.timestamp ? new Date(p.timestamp).toLocaleString() : 'N/A'
-      }));
+      const exportData = payments.map((p) => {
+        const row: any = {
+          'Machine Node ID': p.machineId || 'MQTT_TRIGGER',
+          'Payment Ref ID': p.paymentId || 'N/A',
+          'QR ID Reference': p.qrId || p.qr_id || 'N/A',
+          'Payment Method': p.method || 'N/A'
+        };
+
+        if (userRole === 'admin') {
+          row['Payer Name'] = p.customerName || p.payerName || 'Anonymous';
+          row['Payer Email'] = p.customerEmail || p.payerEmail || 'N/A';
+          row['Payer Phone'] = p.customerPhone || p.payerPhone || 'N/A';
+        }
+
+        row['Amount (INR)'] = p.amount || 0;
+        row['Status'] = p.status || 'N/A';
+        row['Timestamp'] = p.timestamp ? new Date(p.timestamp).toLocaleString() : 'N/A';
+
+        return row;
+      });
 
       const ws = XLSX.utils.json_to_sheet(exportData);
       const wb = XLSX.utils.book_new();
@@ -371,7 +379,7 @@ export default function PaymentsHistory() {
                       </span>
                     </td>
                     <td className="py-4 px-6">
-                      {(p.customerName || p.payerName) && (p.customerName !== 'N/A' && p.payerName !== 'N/A') ? (
+                      {userRole === 'admin' && (p.customerName || p.payerName) && (p.customerName !== 'N/A' && p.payerName !== 'N/A') ? (
                         <div className="text-xs space-y-0.5">
                           <p className="font-semibold text-gray-800 flex items-center gap-1">
                             <User size={10} /> {p.customerName || p.payerName}
