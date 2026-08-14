@@ -356,7 +356,7 @@ export default function PaymentsHistory() {
                 <th className="py-4 px-6">Machine Node</th>
                 <th className="py-4 px-6">Gateway ID / Ref</th>
                 <th className="py-4 px-6">Method</th>
-                <th className="py-4 px-6">Payer details</th>
+                {userRole === 'admin' && <th className="py-4 px-6">Payer details</th>}
                 {userRole === 'admin' && <th className="py-4 px-6">Phone Number</th>}
                 <th className="py-4 px-6">Yield (₹)</th>
                 <th className="py-4 px-6">Timestamp</th>
@@ -379,20 +379,22 @@ export default function PaymentsHistory() {
                         {p.method?.toLowerCase() === 'razorpay' ? 'Online' : 'MQTT Code'}
                       </span>
                     </td>
-                    <td className="py-4 px-6">
-                      {userRole === 'admin' && (p.customerName || p.payerName) && (p.customerName !== 'N/A' && p.payerName !== 'N/A') ? (
-                        <div className="text-xs space-y-0.5">
-                          <p className="font-semibold text-gray-800 flex items-center gap-1">
-                            <User size={10} /> {p.customerName || p.payerName}
-                          </p>
-                          {(p.customerEmail || p.payerEmail) && (p.customerEmail !== 'N/A') && (
-                            <p className="text-gray-400 flex items-center gap-1"><Mail size={10} /> {p.customerEmail || p.payerEmail}</p>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 font-medium">Anonymous / Kiosk Cash</span>
-                      )}
-                    </td>
+                    {userRole === 'admin' && (
+                      <td className="py-4 px-6">
+                        {(p.customerName || p.payerName) && (p.customerName !== 'N/A' && p.payerName !== 'N/A') ? (
+                          <div className="text-xs space-y-0.5">
+                            <p className="font-semibold text-gray-800 flex items-center gap-1">
+                              <User size={10} /> {p.customerName || p.payerName}
+                            </p>
+                            {(p.customerEmail || p.payerEmail) && (p.customerEmail !== 'N/A') && (
+                              <p className="text-gray-400 flex items-center gap-1"><Mail size={10} /> {p.customerEmail || p.payerEmail}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-medium">Anonymous / Kiosk Cash</span>
+                        )}
+                      </td>
+                    )}
                     {userRole === 'admin' && (
                       <td className="py-4 px-6 font-mono text-xs text-gray-600">
                         {p.customerPhone || p.payerPhone || 'N/A'}
@@ -415,7 +417,7 @@ export default function PaymentsHistory() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={userRole === 'admin' ? 8 : 7} className="py-8 text-center text-gray-400">
+                  <td colSpan={userRole === 'admin' ? 8 : 6} className="py-8 text-center text-gray-400">
                     No transactions matching the selected filters.
                   </td>
                 </tr>
