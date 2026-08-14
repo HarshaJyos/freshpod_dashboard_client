@@ -357,6 +357,7 @@ export default function PaymentsHistory() {
                 <th className="py-4 px-6">Gateway ID / Ref</th>
                 <th className="py-4 px-6">Method</th>
                 <th className="py-4 px-6">Payer details</th>
+                {userRole === 'admin' && <th className="py-4 px-6">Phone Number</th>}
                 <th className="py-4 px-6">Yield (₹)</th>
                 <th className="py-4 px-6">Timestamp</th>
                 <th className="py-4 px-6">Status</th>
@@ -387,14 +388,16 @@ export default function PaymentsHistory() {
                           {(p.customerEmail || p.payerEmail) && (p.customerEmail !== 'N/A') && (
                             <p className="text-gray-400 flex items-center gap-1"><Mail size={10} /> {p.customerEmail || p.payerEmail}</p>
                           )}
-                          {(p.customerPhone || p.payerPhone) && (p.customerPhone !== 'N/A') && (
-                            <p className="text-gray-400 flex items-center gap-1"><Phone size={10} /> {p.customerPhone || p.payerPhone}</p>
-                          )}
                         </div>
                       ) : (
                         <span className="text-xs text-gray-400 font-medium">Anonymous / Kiosk Cash</span>
                       )}
                     </td>
+                    {userRole === 'admin' && (
+                      <td className="py-4 px-6 font-mono text-xs text-gray-600">
+                        {p.customerPhone || p.payerPhone || 'N/A'}
+                      </td>
+                    )}
                     <td className="py-4 px-6 font-semibold text-gray-900">₹{p.amount.toLocaleString()}</td>
                     <td className="py-4 px-6 text-xs text-gray-500 flex items-center gap-1 mt-2.5">
                       <Calendar size={12} className="text-gray-400" />
@@ -412,7 +415,7 @@ export default function PaymentsHistory() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-gray-400">
+                  <td colSpan={userRole === 'admin' ? 8 : 7} className="py-8 text-center text-gray-400">
                     No transactions matching the selected filters.
                   </td>
                 </tr>
