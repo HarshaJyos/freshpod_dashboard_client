@@ -18,7 +18,8 @@ import {
   FileText,
   CreditCard,
   LucideIcon,
-  Trash2
+  Trash2,
+  Cpu
 } from 'lucide-react';
 
 interface MenuItem {
@@ -48,6 +49,7 @@ export default function Sidebar() {
     { path: "/admin/analytics", name: "Analytics", icon: BarChart3 },
     { path: "/admin/health", name: "System Health", icon: Activity },
     { path: "/admin/payments", name: "Payments", icon: CreditCard },
+    { path: "/admin/firmware", name: "Firmware OTA", icon: Cpu },
     { path: "/admin/trash", name: "Trash Bin", icon: Trash2 },
     { path: "/admin/settings", name: "Settings", icon: Settings },
   ];
