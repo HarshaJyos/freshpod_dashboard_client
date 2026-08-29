@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../../lib/axios';
 import { useAuth } from '../../../context/AuthContext';
 import { useData } from '../../../context/DataContext';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { toast } from 'react-toastify';
 import { 
   Trash2, RefreshCw, ShieldAlert, Cpu, 
@@ -36,6 +37,10 @@ export default function TrashBin() {
   const [machines, setMachines] = useState<TrashedMachine[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Column widths: S.No (0), Item details (1), Location/Contact (2), Deleted Timestamp (3), Actions (4)
+  const { widths, startResize } = useResizableColumns([60, 240, 220, 220, 160]);
+  const [rowPadding, setRowPadding] = useState('py-2');
 
   const fetchTrash = async () => {
     setLoading(true);
@@ -124,30 +129,44 @@ export default function TrashBin() {
         </button>
       </div>
 
-      {/* Tabs - Flat PowerBI Style */}
-      <div className="flex gap-1.5 p-1 bg-gray-100 rounded max-w-xs border border-gray-200">
-        <button
-          onClick={() => setActiveTab('machines')}
-          className={`flex-1 py-1 px-2.5 text-xs font-bold rounded flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'machines' 
-              ? 'bg-white text-gray-800 border border-gray-200' 
-              : 'text-gray-500 hover:text-gray-800'
-          }`}
-        >
-          <Cpu size={13} />
-          Kiosks ({machines.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`flex-1 py-1 px-2.5 text-xs font-bold rounded flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'users' 
-              ? 'bg-white text-gray-800 border border-gray-200' 
-              : 'text-gray-500 hover:text-gray-800'
-          }`}
-        >
-          <User size={13} />
-          Users ({users.length})
-        </button>
+      {/* Tabs and Density Selector Bar - Flat PowerBI Style */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex gap-1.5 p-1 bg-gray-100 rounded max-w-xs border border-gray-200 w-full sm:w-auto">
+          <button
+            onClick={() => setActiveTab('machines')}
+            className={`flex-1 py-1 px-2.5 text-xs font-bold rounded flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeTab === 'machines' 
+                ? 'bg-white text-gray-800 border border-gray-200' 
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            <Cpu size={13} />
+            Kiosks ({machines.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`flex-1 py-1 px-2.5 text-xs font-bold rounded flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeTab === 'users' 
+                ? 'bg-white text-gray-800 border border-gray-200' 
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            <User size={13} />
+            Users ({users.length})
+          </button>
+        </div>
+        <div>
+          <select
+            value={rowPadding}
+            onChange={(e) => setRowPadding(e.target.value)}
+            className="bg-white border border-gray-200 px-2 py-1 rounded text-[10px] focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+            title="Row Height"
+          >
+            <option value="py-1">Compact Height</option>
+            <option value="py-2.5">Standard Height</option>
+            <option value="py-4">Tall Height</option>
+          </select>
+        </div>
       </div>
 
       {/* Content - Flat Excel Table Container */}
@@ -168,44 +187,62 @@ export default function TrashBin() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
                 <colgroup>
-                  <col className="w-[30%]" />
-                  <col className="w-[25%]" />
-                  <col className="w-[25%]" />
-                  <col className="w-[20%]" />
+                  {widths.map((w, i) => (
+                    <col key={i} style={{ width: w }} />
+                  ))}
                 </colgroup>
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                    <th className="py-2.5 px-4 border-r border-gray-200">Machine Detail</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200">Deleted Timestamp</th>
-                    <th className="py-2.5 px-4 text-center">Actions</th>
+                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      S.No
+                      <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      Machine Detail
+                      <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      Location
+                      <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      Deleted Timestamp
+                      <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 text-center relative">
+                      Actions
+                      <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {machines.map((m) => (
+                  {machines.map((m, index) => (
                     <tr key={m._id} className="hover:bg-gray-50/50 transition-colors text-xs">
-                      <td className="py-2.5 px-4 border-r border-gray-200">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                        {index + 1}
+                      </td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-2">
-                          <span className="p-1 rounded bg-rose-50 text-rose-600"><Cpu size={14} /></span>
-                          <div>
-                            <p className="font-bold text-gray-800 font-mono">{m.machineId}</p>
-                            <p className="text-[9px] text-gray-400 font-mono">QR ID: {m.qrId || 'None Assigned'}</p>
+                          <span className="p-1 rounded bg-rose-50 text-rose-600 shrink-0"><Cpu size={14} /></span>
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-800 font-mono truncate">{m.machineId}</p>
+                            <p className="text-[9px] text-gray-400 font-mono truncate">QR ID: {m.qrId || 'None Assigned'}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-gray-600 whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-1">
                           <MapPin size={12} className="text-gray-400 shrink-0" />
                           <span>{m.location}</span>
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-gray-500">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-1">
                           <Calendar size={12} className="text-gray-400 shrink-0" />
                           <span>{m.deletedAt ? new Date(m.deletedAt).toLocaleString() : 'N/A'}</span>
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 text-center">
+                      <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                         <div className="flex justify-center gap-1.5">
                           <button
                             onClick={() => handleRestore(m._id, 'machine')}
@@ -240,54 +277,72 @@ export default function TrashBin() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
                 <colgroup>
-                  <col className="w-[30%]" />
-                  <col className="w-[30%]" />
-                  <col className="w-[25%]" />
-                  <col className="w-[15%]" />
+                  {widths.map((w, i) => (
+                    <col key={i} style={{ width: w }} />
+                  ))}
                 </colgroup>
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                    <th className="py-2.5 px-4 border-r border-gray-200">User Detail</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200">Contact Info</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200">Deleted Timestamp</th>
-                    <th className="py-2.5 px-4 text-center">Actions</th>
+                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      S.No
+                      <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      User Detail
+                      <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      Contact Info
+                      <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      Deleted Timestamp
+                      <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 text-center relative">
+                      Actions
+                      <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 font-medium text-gray-800">
-                  {users.map((u) => (
+                  {users.map((u, index) => (
                     <tr key={u._id} className="hover:bg-gray-50/50 transition-colors text-xs">
-                      <td className="py-2.5 px-4 border-r border-gray-200">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                        {index + 1}
+                      </td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-2">
-                          <span className="p-1 rounded bg-indigo-50 text-indigo-600"><User size={14} /></span>
-                          <div>
-                            <p className="font-bold text-gray-800">{u.name}</p>
+                          <span className="p-1 rounded bg-indigo-50 text-indigo-600 shrink-0"><User size={14} /></span>
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-800 truncate">{u.name}</p>
                             <span className="px-1.5 py-0.5 bg-gray-100 border border-gray-200 text-[9px] font-bold uppercase mt-1 inline-block text-gray-500 rounded">
                               {u.role}
                             </span>
                           </div>
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600 font-mono">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-gray-600 font-mono whitespace-normal break-words select-text`}>
                         <div className="space-y-0.5 text-[11px]">
-                          <div className="flex items-center gap-1 font-semibold">
+                          <div className="flex items-center gap-1 font-semibold truncate">
                             <Mail size={11} className="text-gray-400 shrink-0" />
                             <span>{u.email}</span>
                           </div>
                           {u.phoneNumber && (
-                            <div className="flex items-center gap-1 font-semibold text-gray-500">
+                            <div className="flex items-center gap-1 font-semibold text-gray-500 truncate">
                               <Phone size={11} className="text-gray-400 shrink-0" />
                               <span>{u.phoneNumber}</span>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-gray-500">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-1">
                           <Calendar size={12} className="text-gray-400 shrink-0" />
                           <span>{u.deletedAt ? new Date(u.deletedAt).toLocaleString() : 'N/A'}</span>
                         </div>
                       </td>
-                      <td className="py-2.5 px-4 text-center">
+                      <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                         <div className="flex justify-center gap-1.5">
                           <button
                             onClick={() => handleRestore(u._id, 'user')}

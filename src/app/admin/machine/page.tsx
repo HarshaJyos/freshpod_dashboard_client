@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import axiosInstance from '../../../lib/axios';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { 
   FiCpu, FiMapPin, FiPlus, FiEye, 
   FiEdit2, FiTrash2, FiRefreshCw, FiUser, FiActivity,
@@ -18,14 +19,15 @@ interface Machine {
   location: string;
   state?: string;
   country?: string;
-  costPerTap: number;
-  machineCost?: number;
   status: string;
   assignedTo?: any;
   dealership?: any;
   operatorId?: any;
+  costPerTap?: number;
+  machineCost?: number;
   razorpayKeyId?: string;
   razorpayKeySecret?: string;
+  logs?: any;
 }
 
 interface User {
@@ -36,11 +38,15 @@ interface User {
   assignedMachines?: any[];
 }
 
-export default function MachineManagement() {
+export default function MachineDirectives() {
   const { accessToken } = useAuth();
   const [machines, setMachines] = useState<Machine[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // S.No, Node ID, Location, Cost Per Tap, Allocations, Status, Actions
+  const { widths, startResize } = useResizableColumns([60, 160, 200, 120, 260, 110, 150]);
+  const [rowPadding, setRowPadding] = useState('py-2.5');
   
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -154,7 +160,7 @@ export default function MachineManagement() {
     if (!selectedMachine || !selectedUser) return;
     
     try {
-      const currentMachineIds = selectedUser.assignedMachines?.map(m => m._id || m) || [];
+      const currentMachineIds = selectedUser.assignedMachines?.map((m: any) => m._id || m) || [];
       const newMachineIds = [...currentMachineIds, selectedMachine._id];
 
       const response = await axiosInstance.put(
@@ -182,8 +188,8 @@ export default function MachineManagement() {
     try {
       const targetUser = users.find(u => u._id === userId);
       if (!targetUser) return;
-      const currentMachineIds = targetUser.assignedMachines?.map(m => m._id || m) || [];
-      const newMachineIds = currentMachineIds.filter(id => id !== machineId);
+      const currentMachineIds = targetUser.assignedMachines?.map((m: any) => m._id || m) || [];
+      const newMachineIds = currentMachineIds.filter((id: string) => id !== machineId);
 
       const response = await axiosInstance.put(
         `/admin/user/${userId}`,
@@ -224,7 +230,7 @@ export default function MachineManagement() {
       location: machine.location,
       state: machine.state || '',
       country: machine.country || 'India',
-      costPerTap: machine.costPerTap,
+      costPerTap: machine.costPerTap || 70.00,
       machineCost: machine.machineCost || 50000,
       status: machine.status || 'active',
       razorpayKeyId: machine.razorpayKeyId || '',
@@ -295,6 +301,16 @@ export default function MachineManagement() {
           />
         </div>
         <div className="flex items-center gap-2 self-end sm:self-auto">
+          <select
+            value={rowPadding}
+            onChange={(e) => setRowPadding(e.target.value)}
+            className="bg-white border border-gray-200 px-2 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+            title="Row Height"
+          >
+            <option value="py-1">Compact Height</option>
+            <option value="py-2.5">Standard Height</option>
+            <option value="py-4">Tall Height</option>
+          </select>
           <span className="text-gray-400 text-xs font-semibold"><FiFilter className="inline mr-1" /> Status:</span>
           <select
             value={filterStatus}
@@ -314,33 +330,57 @@ export default function MachineManagement() {
         <div className="overflow-x-auto w-full">
           <table className="min-w-full text-left border-collapse table-fixed">
             <colgroup>
-              <col className="w-[180px] sm:w-[220px]" />
-              <col className="w-[200px] sm:w-[240px]" />
-              <col className="w-[120px]" />
-              <col className="w-[240px] sm:w-[280px]" />
-              <col className="w-[130px]" />
-              <col className="w-[150px]" />
+              {widths.map((w: number, i: number) => (
+                <col key={i} style={{ width: w }} />
+              ))}
             </colgroup>
             <thead>
-              <tr className="bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold">Node ID</th>
-                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold">Location</th>
-                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold text-right">Cost Per Tap</th>
-                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold">Allocations</th>
-                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold text-center">Status</th>
-                <th className="py-2.5 px-4 border-b border-gray-200 text-center font-bold">Actions</th>
+              <tr className="bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider select-none">
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold relative">
+                  S.No
+                  <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50 animate-pulse" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold relative">
+                  Node ID
+                  <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold relative">
+                  Location
+                  <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold text-right relative">
+                  Cost Per Tap
+                  <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold relative">
+                  Allocations
+                  <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold text-center relative">
+                  Status
+                  <div onMouseDown={(e) => startResize(5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-b border-gray-200 text-center font-bold relative">
+                  Actions
+                  <div onMouseDown={(e) => startResize(6, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
               </tr>
             </thead>
             <tbody className="text-xs text-gray-700">
               {filteredMachines.length > 0 ? (
-                filteredMachines.map((m) => {
+                filteredMachines.map((m, index) => {
                   const customer = getAssignedCustomer(m);
                   const dealer = getDealership(m);
                   const operator = getOperator(m);
                   return (
                     <tr key={m._id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-200 last:border-b-0">
+                      {/* S.No */}
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text align-middle`}>
+                        {index + 1}
+                      </td>
+
                       {/* Node ID */}
-                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 align-middle whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-2">
                           <span className="p-1 rounded bg-blue-50 text-blue-600 shrink-0">
                             <FiCpu size={12} />
@@ -353,7 +393,7 @@ export default function MachineManagement() {
                       </td>
 
                       {/* Location */}
-                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle text-xs">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 align-middle text-xs whitespace-normal break-words select-text`}>
                         <div className="flex items-center gap-1.5">
                           <FiMapPin className="text-gray-400 shrink-0" size={12} />
                           <div className="min-w-0">
@@ -364,8 +404,8 @@ export default function MachineManagement() {
                       </td>
 
                       {/* Cost per Tap */}
-                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle text-right font-mono font-bold text-gray-900">
-                        <span>₹{m.costPerTap.toFixed(2)}</span>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 align-middle text-right font-mono font-bold text-gray-900 whitespace-normal break-words select-text`}>
+                        <span>₹{m.costPerTap ? m.costPerTap.toFixed(2) : '0.00'}</span>
                       </td>
 
                       {/* Allocations nested grid with sheet style cells */}
@@ -396,7 +436,7 @@ export default function MachineManagement() {
                       </td>
 
                       {/* Status */}
-                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle text-center">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 align-middle text-center whitespace-normal break-words select-text`}>
                         <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
                           m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' :
                           m.status === 'idle' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' : 
@@ -411,7 +451,7 @@ export default function MachineManagement() {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-2.5 px-4 align-middle text-center">
+                      <td className={`${rowPadding} px-4 align-middle text-center whitespace-normal break-words select-text`}>
                         <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => { setSelectedMachine(m); setShowDetailsModal(true); }}
@@ -441,7 +481,7 @@ export default function MachineManagement() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-400 text-xs italic">
+                  <td colSpan={7} className="py-12 text-center text-gray-400 text-xs italic">
                     No telemetry kiosks registered matching filters.
                   </td>
                 </tr>

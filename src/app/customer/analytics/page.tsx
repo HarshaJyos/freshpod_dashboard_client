@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import axiosInstance from '../../../lib/axios';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { 
   FiTrendingUp, FiBarChart2, FiDollarSign, FiCalendar, FiActivity, FiAward, FiTarget, FiInfo, FiCpu, FiAlertCircle
 } from 'react-icons/fi';
@@ -38,6 +39,10 @@ export default function CustomerAnalytics() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState('');
+
+  // S.No, Kiosk ID, Taps, Gross Revenue, Net Profit, Location
+  const { widths, startResize } = useResizableColumns([60, 140, 100, 140, 140, 220]);
+  const [rowPadding, setRowPadding] = useState('py-2');
 
   const fetchData = async () => {
     if (!accessToken) return;
@@ -249,35 +254,65 @@ export default function CustomerAnalytics() {
 
           {/* Machine detailed summary list in Excel table format */}
           <div className="bg-white border border-gray-200 overflow-hidden mt-6">
-            <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+            <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
               <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Kiosk Margin Audit Table</h3>
+              <select
+                value={rowPadding}
+                onChange={(e) => setRowPadding(e.target.value)}
+                className="bg-white border border-gray-200 px-2 py-1 rounded text-[10px] focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+                title="Row Height"
+              >
+                <option value="py-1">Compact Height</option>
+                <option value="py-2.5">Standard Height</option>
+                <option value="py-4">Tall Height</option>
+              </select>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
                 <colgroup>
-                  <col className="w-[20%]" />
-                  <col className="w-[15%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[25%]" />
+                  {widths.map((w, i) => (
+                    <col key={i} style={{ width: w }} />
+                  ))}
                 </colgroup>
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                    <th className="py-2.5 px-4 border-r border-gray-200">Kiosk ID</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200 text-right">Taps</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200 text-right">Gross Revenue</th>
-                    <th className="py-2.5 px-4 border-r border-gray-200 text-right">Net Profit</th>
-                    <th className="py-2.5 px-4">Location</th>
+                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      S.No
+                      <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                      Kiosk ID
+                      <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                      Taps
+                      <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                      Gross Revenue
+                      <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                      Net Profit
+                      <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
+                    <th className="py-2.5 px-4 relative">
+                      Location
+                      <div onMouseDown={(e) => startResize(5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {stats.processedMachines.map((m) => (
+                  {stats.processedMachines.map((m, index) => (
                     <tr key={m.machineId} className="hover:bg-gray-50/50 transition-colors text-xs">
-                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-800">{m.machineId}</td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{m.taps}</td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono text-green-600 font-semibold">₹{Math.round(m.revenue).toLocaleString()}</td>
-                      <td className={`py-2.5 px-4 border-r border-gray-200 text-right font-mono font-bold ${m.netProfit >= 0 ? 'text-blue-600' : 'text-red-500'}`}>₹{Math.round(m.netProfit).toLocaleString()}</td>
-                      <td className="py-2.5 px-4 text-gray-600">{m.location}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                        {index + 1}
+                      </td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono font-bold text-gray-800 whitespace-normal break-words select-text`}>{m.machineId}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-medium whitespace-normal break-words select-text`}>{m.taps}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono text-green-600 font-semibold whitespace-normal break-words select-text`}>₹{Math.round(m.revenue).toLocaleString()}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-bold ${m.netProfit >= 0 ? 'text-blue-600' : 'text-red-500'} whitespace-normal break-words select-text`}>₹{Math.round(m.netProfit).toLocaleString()}</td>
+                      <td className={`${rowPadding} px-4 text-gray-600 whitespace-normal break-words select-text`}>{m.location}</td>
                     </tr>
                   ))}
                 </tbody>

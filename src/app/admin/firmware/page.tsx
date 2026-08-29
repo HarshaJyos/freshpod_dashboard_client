@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import axiosInstance from '../../../lib/axios';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { 
   FiCpu, FiFile, FiCheckCircle, FiAlertCircle, FiX, 
   FiLoader, FiInfo, FiHardDrive, FiDollarSign, 
@@ -19,6 +20,11 @@ interface FirmwareHistoryItem {
 
 export default function FirmwareManagement() {
   const { accessToken } = useAuth();
+  const [rowPadding, setRowPadding] = useState('py-2');
+
+  // S.No, Version, Cost Tier, Uploaded Date, Download URL
+  const { widths, startResize } = useResizableColumns([60, 120, 120, 240, 200]);
+
   const [form, setForm] = useState({
     machineId: '',
     machineName: '',
@@ -531,13 +537,25 @@ export default function FirmwareManagement() {
               <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
                 <FiFile className="text-blue-500" /> Version History Logs
               </h2>
-              <button 
-                onClick={() => fetchHistory(form.machineId)}
-                className="p-1 text-gray-400 hover:text-blue-500 rounded hover:bg-gray-50 transition-colors"
-                title="Refresh logs"
-              >
-                <FiRefreshCw className={loadingHistory ? 'animate-spin' : ''} />
-              </button>
+              <div className="flex items-center gap-2">
+                <select
+                  value={rowPadding}
+                  onChange={(e) => setRowPadding(e.target.value)}
+                  className="bg-white border border-gray-200 px-2 py-1 rounded text-[10px] focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+                  title="Row Height"
+                >
+                  <option value="py-1">Compact Height</option>
+                  <option value="py-2.5">Standard Height</option>
+                  <option value="py-4">Tall Height</option>
+                </select>
+                <button 
+                  onClick={() => fetchHistory(form.machineId)}
+                  className="p-1 text-gray-400 hover:text-blue-500 rounded hover:bg-gray-50 transition-colors"
+                  title="Refresh logs"
+                >
+                  <FiRefreshCw className={loadingHistory ? 'animate-spin' : ''} />
+                </button>
+              </div>
             </div>
 
             {loadingHistory ? (
@@ -548,32 +566,50 @@ export default function FirmwareManagement() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse table-fixed min-w-[650px]">
                   <colgroup>
-                    <col className="w-[20%]" />
-                    <col className="w-[20%]" />
-                    <col className="w-[30%]" />
-                    <col className="w-[30%]" />
+                    {widths.map((w, i) => (
+                      <col key={i} style={{ width: w }} />
+                    ))}
                   </colgroup>
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                      <th className="py-2.5 px-4 border-r border-gray-200">Version</th>
-                      <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cost Tier</th>
-                      <th className="py-2.5 px-4 border-r border-gray-200">Uploaded Date</th>
-                      <th className="py-2.5 px-4">Download URL</th>
+                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                      <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                        S.No
+                        <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                      </th>
+                      <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                        Version
+                        <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                      </th>
+                      <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                        Cost Tier
+                        <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                      </th>
+                      <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                        Uploaded Date
+                        <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                      </th>
+                      <th className="py-2.5 px-4 relative">
+                        Download URL
+                        <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 text-xs text-gray-800">
                     {history.map((fw, index) => (
                       <tr key={index} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="py-2.5 px-4 border-r border-gray-200">
+                        <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                          {index + 1}
+                        </td>
+                        <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                           <span className="inline-flex px-1.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-600 rounded text-[10px] font-bold font-mono">
                             v{fw.version}
                           </span>
                         </td>
-                        <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">₹{qrValueToAmount(fw.qrvalue)}</td>
-                        <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-[11px] text-gray-500">
+                        <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-medium whitespace-normal break-words select-text`}>₹{qrValueToAmount(fw.qrvalue)}</td>
+                        <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-[11px] text-gray-500 whitespace-normal break-words select-text`}>
                           {new Date(fw.uploadedAt).toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-4">
+                        <td className={`${rowPadding} px-4 whitespace-normal break-words select-text`}>
                           <a 
                             href={fw.url} 
                             target="_blank" 

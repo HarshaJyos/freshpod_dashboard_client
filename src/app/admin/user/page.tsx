@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import axiosInstance from '../../../lib/axios';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { 
   FiUsers, FiUserPlus, FiEdit2, FiTrash2, FiShield, 
   FiUser, FiCpu, FiX, FiSearch,
@@ -39,6 +40,10 @@ export default function UserDirective() {
   const [users, setUsers] = useState<User[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // S.No, User / Contact, Role, Location, Assigned Machines, Actions
+  const { widths, startResize } = useResizableColumns([60, 240, 110, 160, 240, 100]);
+  const [rowPadding, setRowPadding] = useState('py-2');
   
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
@@ -294,6 +299,16 @@ export default function UserDirective() {
           />
         </div>
         <div className="flex items-center gap-2">
+          <select
+            value={rowPadding}
+            onChange={(e) => setRowPadding(e.target.value)}
+            className="bg-white border border-gray-200 px-2 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+            title="Row Height"
+          >
+            <option value="py-1">Compact Height</option>
+            <option value="py-2.5">Standard Height</option>
+            <option value="py-4">Tall Height</option>
+          </select>
           <span className="text-gray-400 text-xs font-semibold">Filter Role:</span>
           <select
             value={roleFilter}
@@ -314,37 +329,57 @@ export default function UserDirective() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed min-w-[800px]">
             <colgroup>
-              <col className="w-[30%]" />
-              <col className="w-[15%]" />
-              <col className="w-[20%]" />
-              <col className="w-[23%]" />
-              <col className="w-[12%]" />
+              {widths.map((w, i) => (
+                <col key={i} style={{ width: w }} />
+              ))}
             </colgroup>
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                <th className="py-2.5 px-4 border-r border-gray-200">User / Contact</th>
-                <th className="py-2.5 px-4 border-r border-gray-200 text-center">Role</th>
-                <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
-                <th className="py-2.5 px-4 border-r border-gray-200">Assigned Machines</th>
-                <th className="py-2.5 px-4 text-center">Actions</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  S.No
+                  <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  User / Contact
+                  <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-center relative">
+                  Role
+                  <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  Location
+                  <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  Assigned Machines
+                  <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 text-center relative">
+                  Actions
+                  <div onMouseDown={(e) => startResize(5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredUsers.length > 0 ? (
-                filteredUsers.map((u) => (
+                filteredUsers.map((u, index) => (
                   <tr key={u._id} className="hover:bg-gray-50/50 transition-colors text-xs">
-                    <td className="py-2.5 px-4 border-r border-gray-200">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                      {index + 1}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
+                        <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-bold text-gray-800">{u.name}</p>
-                          <p className="text-[10px] text-gray-400 font-mono">{u.email}</p>
+                        <div className="min-w-0">
+                          <p className="font-bold text-gray-800 truncate">{u.name}</p>
+                          <p className="text-[10px] text-gray-400 font-mono truncate">{u.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-center">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-center whitespace-normal break-words select-text`}>
                       <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
                         u.role === 'admin' ? 'bg-red-50 text-red-700 border border-red-200' :
                         u.role === 'dealership' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
@@ -353,12 +388,12 @@ export default function UserDirective() {
                         {u.role}
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-gray-600 whitespace-normal break-words select-text`}>
                       {u.location ? (
                         <span className="flex items-center gap-1"><FiMapPin size={10} className="text-gray-400" /> {u.location}</span>
                       ) : 'N/A'}
                     </td>
-                    <td className="py-2.5 px-4 border-r border-gray-200">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                       <div className="flex flex-wrap gap-1">
                         {u.assignedMachines && u.assignedMachines.length > 0 ? (
                           u.assignedMachines.map((m: any, i) => (
@@ -371,7 +406,7 @@ export default function UserDirective() {
                         )}
                       </div>
                     </td>
-                    <td className="py-2.5 px-4 text-center">
+                    <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                       <div className="flex gap-1.5 justify-center">
                         <button
                           onClick={() => openEditModal(u)}

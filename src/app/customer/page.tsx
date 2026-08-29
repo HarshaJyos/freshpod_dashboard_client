@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import axiosInstance from '../../lib/axios';
+import { useResizableColumns } from '../../hooks/useResizableColumns';
 import { 
   FiCpu, FiActivity, FiDollarSign, FiUsers, FiCalendar, FiUserPlus, FiUser, 
   FiTrash2, FiEdit2, FiPlus, FiX, FiCheckCircle, FiAlertCircle, FiSettings, FiZap
@@ -25,6 +26,10 @@ export default function CustomerDashboard() {
   const [dashboardStats, setDashboardStats] = useState<any>(null);
   const [operators, setOperators] = useState<Operator[]>([]);
   const [customerMachines, setCustomerMachines] = useState<any[]>([]);
+
+  // Columns: S.No (0), Kiosk Node (1), Location (2), Taps (3), Settings (4)
+  const { widths, startResize } = useResizableColumns([60, 150, 220, 160, 160]);
+  const [rowPadding, setRowPadding] = useState('py-2');
 
   // Modals
   const [showOperatorModal, setShowOperatorModal] = useState(false);
@@ -291,40 +296,70 @@ export default function CustomerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Kiosks List in Spreadsheet Format */}
         <div className="lg:col-span-2 bg-white border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+          <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
             <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Kiosks Telemetry Status</h3>
+            <select
+              value={rowPadding}
+              onChange={(e) => setRowPadding(e.target.value)}
+              className="bg-white border border-gray-200 px-2 py-1 rounded text-[10px] focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+              title="Row Height"
+            >
+              <option value="py-1">Compact Height</option>
+              <option value="py-2.5">Standard Height</option>
+              <option value="py-4">Tall Height</option>
+            </select>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse table-fixed min-w-[650px]">
               <colgroup>
-                <col className="w-[20%]" />
-                <col className="w-[30%]" />
-                <col className="w-[25%]" />
-                <col className="w-[25%]" />
+                {widths.map((w, i) => (
+                  <col key={i} style={{ width: w }} />
+                ))}
               </colgroup>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                  <th className="py-2.5 px-4 border-r border-gray-200">Kiosk Node</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Taps (Yield)</th>
-                  <th className="py-2.5 px-4 text-center">Settings</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    S.No
+                    <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    Kiosk Node
+                    <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    Location
+                    <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                    Taps (Yield)
+                    <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 text-center relative">
+                    Settings
+                    <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {machinesArray.map((m: any) => (
+                {machinesArray.map((m: any, index: number) => (
                   <tr key={m._id} className="hover:bg-gray-50/50 transition-colors text-xs">
-                    <td className="py-2.5 px-4 border-r border-gray-200">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                      {index + 1}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                       <p className="font-bold text-gray-800 font-mono">{m.machineId}</p>
                       <span className={`inline-flex px-1.5 py-0.5 mt-1 rounded text-[8px] font-bold uppercase ${
                         m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                       }`}>{m.status}</span>
                     </td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">{m.location}</td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-right">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-gray-600 whitespace-normal break-words select-text`}>
+                      {m.location}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-right whitespace-normal break-words select-text`}>
                       <p className="font-semibold text-gray-900 font-mono">{m.totalTaps || 0} taps</p>
                       <p className="text-[10px] text-gray-400 font-mono">₹{((m.totalRevenue !== undefined ? m.totalRevenue : (m.totalTaps || 0) * (m.costPerTap || 70.00))).toLocaleString()}</p>
                     </td>
-                    <td className="py-2.5 px-4 text-center">
+                    <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                       <div className="flex gap-1.5 justify-center">
                         <button 
                           onClick={() => openSettingsModal(m)}
@@ -344,7 +379,7 @@ export default function CustomerDashboard() {
                 ))}
                 {machinesArray.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-gray-400">No kiosks assigned to your account.</td>
+                    <td colSpan={5} className="py-8 text-center text-gray-400">No kiosks assigned to your account.</td>
                   </tr>
                 )}
               </tbody>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useData } from '../../context/DataContext';
+import { useResizableColumns } from '../../hooks/useResizableColumns';
 import { 
   FiMousePointer, FiActivity, FiTrendingUp, 
   FiAlertCircle, FiDollarSign, FiCheckCircle, FiCalendar, FiDownload
@@ -24,8 +25,8 @@ interface Stats {
   totalRevenue: number;
   totalMachines: number;
   uptime: number;
-  dailyTrend: { date: string; taps: number }[];
-  alerts: { id: string; message: string }[];
+  dailyTrend: any[];
+  alerts: any[];
   monthName: string;
   avgDailyTaps: number;
   projectedRevenue: number;
@@ -34,6 +35,10 @@ interface Stats {
 export default function AdminDashboard() {
   const { machines, loading, error } = useData();
   const [mounted, setMounted] = useState(false);
+
+  // S.No, ID / Owner, Taps (Month), Efficiency, Revenue, Status
+  const { widths, startResize } = useResizableColumns([60, 180, 130, 130, 130, 110]);
+  const [rowPadding, setRowPadding] = useState('py-2');
 
   useEffect(() => {
     setMounted(true);
@@ -306,39 +311,69 @@ export default function AdminDashboard() {
       {/* Alerts and Machine Health */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+          <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
             <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wider">Registered Machines Overview</h3>
+            <select
+              value={rowPadding}
+              onChange={(e) => setRowPadding(e.target.value)}
+              className="bg-white border border-gray-200 px-2 py-1 rounded text-[10px] focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+              title="Row Height"
+            >
+              <option value="py-1">Compact Height</option>
+              <option value="py-2.5">Standard Height</option>
+              <option value="py-4">Tall Height</option>
+            </select>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse table-fixed min-w-[650px]">
               <colgroup>
-                <col className="w-[30%]" />
-                <col className="w-[18%]" />
-                <col className="w-[18%]" />
-                <col className="w-[18%]" />
-                <col className="w-[16%]" />
+                {widths.map((w, i) => (
+                  <col key={i} style={{ width: w }} />
+                ))}
               </colgroup>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                  <th className="py-2.5 px-4 border-r border-gray-200">ID / Owner</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Taps (Month)</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Efficiency</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Revenue</th>
-                  <th className="py-2.5 px-4 text-center">Status</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    S.No
+                    <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    ID / Owner
+                    <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                    Taps (Month)
+                    <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                    Efficiency
+                    <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                    Revenue
+                    <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 text-center relative">
+                    Status
+                    <div onMouseDown={(e) => startResize(5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {stats.unitList.length > 0 ? (
                   stats.unitList.map((m, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors text-xs">
-                      <td className="py-2.5 px-4 border-r border-gray-200">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                        {idx + 1}
+                      </td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                         <p className="font-bold text-gray-800 font-mono">{m.id}</p>
                         <p className="text-[10px] text-gray-400 font-medium">{m.owner}</p>
                       </td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{m.monthTaps}</td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{m.efficiency}</td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900">₹{m.revenue.toLocaleString()}</td>
-                      <td className="py-2.5 px-4 text-center">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-medium whitespace-normal break-words select-text`}>{m.monthTaps}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-medium whitespace-normal break-words select-text`}>{m.efficiency}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900 whitespace-normal break-words select-text`}>₹{m.revenue.toLocaleString()}</td>
+                      <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                         <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
                           m.status === 'Active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                         }`}>
@@ -349,7 +384,7 @@ export default function AdminDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-400">
+                    <td colSpan={6} className="py-8 text-center text-gray-400">
                       No machines registered in the network
                     </td>
                   </tr>

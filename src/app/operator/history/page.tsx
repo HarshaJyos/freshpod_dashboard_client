@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import axiosInstance from '../../../lib/axios';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { FiClock, FiShield } from 'react-icons/fi';
 
 interface OperatorMachine {
@@ -26,6 +27,11 @@ export default function OperatorHistory() {
   const [loading, setLoading] = useState(true);
   const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
   const [machines, setMachines] = useState<OperatorMachine[]>([]);
+
+  const [rowPadding, setRowPadding] = useState('py-2'); // row padding config
+
+  // Columns: S.No (0), Logged Date (1), Synced Time (2), Cycles Completed (3), Cycle Revenue (4), Status (5)
+  const { widths, startResize } = useResizableColumns([60, 160, 180, 130, 130, 120]);
 
   const fetchMachines = async () => {
     try {
@@ -81,9 +87,23 @@ export default function OperatorHistory() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Disinfection Logs History</h1>
-        <p className="text-gray-500 text-xs mt-1">Audit cycles completed, duration logs, and revenue metrics per node</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Disinfection Logs History</h1>
+          <p className="text-gray-500 text-xs mt-1">Audit cycles completed, duration logs, and revenue metrics per node</p>
+        </div>
+        <div>
+          <select
+            value={rowPadding}
+            onChange={(e) => setRowPadding(e.target.value)}
+            className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+            title="Row Height"
+          >
+            <option value="py-1">Compact Height</option>
+            <option value="py-2.5">Standard Height</option>
+            <option value="py-4">Tall Height</option>
+          </select>
+        </div>
       </div>
 
       {/* Machine Selector - Flat PowerBI Style */}
@@ -119,31 +139,51 @@ export default function OperatorHistory() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
               <colgroup>
-                <col className="w-[20%]" />
-                <col className="w-[25%]" />
-                <col className="w-[15%]" />
-                <col className="w-[20%]" />
-                <col className="w-[20%]" />
+                {widths.map((w: number, i: number) => (
+                  <col key={i} style={{ width: w }} />
+                ))}
               </colgroup>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                  <th className="py-2.5 px-4 border-r border-gray-200">Logged Date</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200">Synced Time</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cycles Completed</th>
-                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cycle Revenue</th>
-                  <th className="py-2.5 px-4 text-center">Status</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    S.No
+                    <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    Logged Date
+                    <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                    Synced Time
+                    <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                    Cycles Completed
+                    <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                    Cycle Revenue
+                    <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                  <th className="py-2.5 px-4 text-center relative">
+                    Status
+                    <div onMouseDown={(e) => startResize(5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {history.map((record, idx) => (
                   <tr key={idx} className="hover:bg-gray-50/50 transition-colors text-xs">
-                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-800">{record.date}</td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-500 font-mono text-[11px]">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                      {idx + 1}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono font-bold text-gray-800 whitespace-normal break-words select-text`}>{record.date}</td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-gray-500 font-mono text-[11px] whitespace-normal break-words select-text`}>
                       {record.time ? new Date(record.time).toLocaleTimeString() : 'N/A'}
                     </td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900">{record.cycles}</td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono text-gray-900">₹{(record.revenue || 0).toFixed(2)}</td>
-                    <td className="py-2.5 px-4 text-center">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900 whitespace-normal break-words select-text`}>{record.cycles}</td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono text-gray-900 whitespace-normal break-words select-text`}>₹{(record.revenue || 0).toFixed(2)}</td>
+                    <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                       <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
                         record.status === 'completed' || record.action === 'completed'
                           ? 'bg-green-50 text-green-700 border border-green-200' 

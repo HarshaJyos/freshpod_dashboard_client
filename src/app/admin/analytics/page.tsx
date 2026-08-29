@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useData } from '../../../context/DataContext';
 import { SanitizationIndicator } from '../../../components/Sanitization';
+import { useResizableColumns } from '../../../hooks/useResizableColumns';
 import { 
   FiTrendingUp, FiPieChart, FiBarChart2, FiArrowUpRight, FiTarget,
   FiCalendar, FiCpu, FiDownload, FiFilter, FiRefreshCw,
@@ -32,6 +33,10 @@ export default function AdminAnalytics() {
   const [selectedState, setSelectedState] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+
+  // S.No, ID / Location, Total Taps Logged, Fluid Capacity Remaining, Status
+  const { widths, startResize } = useResizableColumns([60, 240, 160, 260, 120]);
+  const [rowPadding, setRowPadding] = useState('py-2');
 
   useEffect(() => {
     setMounted(true);
@@ -334,28 +339,53 @@ export default function AdminAnalytics() {
 
       {/* Sanitization and Fleet Status in Excel Table Format */}
       <div className="bg-white border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+        <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
           <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Sanitization Fluid Status</h3>
+          <select
+            value={rowPadding}
+            onChange={(e) => setRowPadding(e.target.value)}
+            className="bg-white border border-gray-200 px-2 py-1 rounded text-[10px] focus:outline-none cursor-pointer font-semibold text-gray-600 shadow-sm"
+            title="Row Height"
+          >
+            <option value="py-1">Compact Height</option>
+            <option value="py-2.5">Standard Height</option>
+            <option value="py-4">Tall Height</option>
+          </select>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
             <colgroup>
-              <col className="w-[30%]" />
-              <col className="w-[20%]" />
-              <col className="w-[35%]" />
-              <col className="w-[15%]" />
+              {widths.map((w, i) => (
+                <col key={i} style={{ width: w }} />
+              ))}
             </colgroup>
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                <th className="py-2.5 px-4 border-r border-gray-200">ID / Location</th>
-                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Total Taps Logged</th>
-                <th className="py-2.5 px-4 border-r border-gray-200">Fluid Capacity Remaining</th>
-                <th className="py-2.5 px-4 text-center">Status</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  S.No
+                  <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  ID / Location
+                  <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-right relative">
+                  Total Taps Logged
+                  <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 border-r border-gray-200 relative">
+                  Fluid Capacity Remaining
+                  <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2.5 px-4 text-center relative">
+                  Status
+                  <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {Object.entries(machines).length > 0 ? (
-                Object.entries(machines).map(([id, m]) => {
+                Object.entries(machines).map(([id, m], index) => {
                   let totalTapsCount = 0;
                   Object.values(m.logs || {}).forEach(log => {
                     totalTapsCount += log.tapCount || log.taps || log.count || 0;
@@ -363,12 +393,15 @@ export default function AdminAnalytics() {
 
                   return (
                     <tr key={id} className="hover:bg-gray-50/50 transition-colors text-xs">
-                      <td className="py-2.5 px-4 border-r border-gray-200">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                        {index + 1}
+                      </td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                         <p className="font-bold text-gray-800 font-mono">{m.machineId || id}</p>
                         <p className="text-[10px] text-gray-400 flex items-center gap-1"><FiMapPin /> {m.location}</p>
                       </td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{totalTapsCount.toLocaleString()}</td>
-                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-medium whitespace-normal break-words select-text`}>{totalTapsCount.toLocaleString()}</td>
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono whitespace-normal break-words select-text`}>
                         <SanitizationIndicator 
                           totalTaps={totalTapsCount} 
                           machineId={m.machineId || id}
@@ -376,7 +409,7 @@ export default function AdminAnalytics() {
                           usagePerTap={m.usagePerTap || 0.012}
                         />
                       </td>
-                      <td className="py-2.5 px-4 text-center">
+                      <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                         <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
                           m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                         }`}>{m.status}</span>
@@ -386,7 +419,7 @@ export default function AdminAnalytics() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-400">No telemetry machines currently active</td>
+                  <td colSpan={5} className="py-8 text-center text-gray-400">No telemetry machines currently active</td>
                 </tr>
               )}
             </tbody>

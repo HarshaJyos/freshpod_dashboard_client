@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { useWebSocket } from '../hooks/useWebSocket';
 import axiosInstance from '../lib/axios';
 import { useAuth } from '../context/AuthContext';
+import { useResizableColumns } from '../hooks/useResizableColumns';
 import { 
   CreditCard, Search, Filter, Calendar, Wifi, 
   User, Mail, Phone, AlertCircle, RefreshCw,
@@ -40,6 +41,17 @@ interface Summary {
 
 export default function PaymentsHistory() {
   const { userRole } = useAuth();
+  const isAdmin = userRole === 'admin';
+
+  // Initialize columns with width
+  // Col indexes: 0: S.No, 1: Machine Node, 2: Gateway ID, 3: Method, 4: Payer Details (Admin), 5: Phone (Admin), 6: Yield, 7: Timestamp, 8: Status
+  const { widths, startResize } = useResizableColumns(
+    isAdmin 
+      ? [60, 140, 200, 110, 200, 130, 110, 190, 110] 
+      : [60, 160, 240, 120, 120, 200, 120]
+  );
+
+  const [rowPadding, setRowPadding] = useState('py-2'); // default medium
   const [payments, setPayments] = useState<Payment[]>([]);
   const [summary, setSummary] = useState<Summary>({
     totalAmount: 0,
@@ -207,8 +219,6 @@ export default function PaymentsHistory() {
     );
   }
 
-  const isAdmin = userRole === 'admin';
-
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -296,6 +306,16 @@ export default function PaymentsHistory() {
           </div>
           <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto justify-end">
             <select
+              value={rowPadding}
+              onChange={(e) => setRowPadding(e.target.value)}
+              className="bg-white border border-gray-200 px-2 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
+              title="Row Height"
+            >
+              <option value="py-1">Compact Height</option>
+              <option value="py-2.5">Standard Height</option>
+              <option value="py-4">Tall Height</option>
+            </select>
+            <select
               value={filterMethod}
               onChange={(e) => setFilterMethod(e.target.value)}
               className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
@@ -335,37 +355,69 @@ export default function PaymentsHistory() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed min-w-[900px]">
             <colgroup>
-              <col className="w-[12%]" />
-              <col className="w-[20%]" />
-              <col className="w-[10%]" />
-              {isAdmin && <col className="w-[18%]" />}
-              {isAdmin && <col className="w-[12%]" />}
-              <col className="w-[10%]" />
-              <col className="w-[18%]" />
-              <col className="w-[10%]" />
+              {widths.map((w, i) => (
+                <col key={i} style={{ width: w }} />
+              ))}
             </colgroup>
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
-                <th className="py-2.5 px-4 border-r border-gray-200">Machine Node</th>
-                <th className="py-2.5 px-4 border-r border-gray-200">Gateway ID / Ref</th>
-                <th className="py-2.5 px-4 border-r border-gray-200">Method</th>
-                {isAdmin && <th className="py-2.5 px-4 border-r border-gray-200">Payer Details</th>}
-                {isAdmin && <th className="py-2.5 px-4 border-r border-gray-200">Phone</th>}
-                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Yield (₹)</th>
-                <th className="py-2.5 px-4 border-r border-gray-200">Timestamp</th>
-                <th className="py-2.5 px-4 text-center">Status</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider select-none">
+                <th className="py-2 px-4 border-r border-gray-200 relative">
+                  S.No
+                  <div onMouseDown={(e) => startResize(0, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2 px-4 border-r border-gray-200 relative">
+                  Machine Node
+                  <div onMouseDown={(e) => startResize(1, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2 px-4 border-r border-gray-200 relative">
+                  Gateway ID / Ref
+                  <div onMouseDown={(e) => startResize(2, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2 px-4 border-r border-gray-200 relative">
+                  Method
+                  <div onMouseDown={(e) => startResize(3, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                {isAdmin && (
+                  <th className="py-2 px-4 border-r border-gray-200 relative">
+                    Payer Details
+                    <div onMouseDown={(e) => startResize(4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                )}
+                {isAdmin && (
+                  <th className="py-2 px-4 border-r border-gray-200 relative">
+                    Phone
+                    <div onMouseDown={(e) => startResize(5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                  </th>
+                )}
+                <th className={`py-2 px-4 border-r border-gray-200 text-right relative`}>
+                  Yield (₹)
+                  <div onMouseDown={(e) => startResize(isAdmin ? 6 : 4, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2 px-4 border-r border-gray-200 relative">
+                  Timestamp
+                  <div onMouseDown={(e) => startResize(isAdmin ? 7 : 5, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
+                <th className="py-2 px-4 text-center relative">
+                  Status
+                  <div onMouseDown={(e) => startResize(isAdmin ? 8 : 6, e)} className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500/50" />
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredPayments.length > 0 ? (
-                filteredPayments.map((p) => (
+                filteredPayments.map((p, index) => (
                   <tr key={p._id} className="hover:bg-gray-50/50 transition-colors text-xs">
-                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-900">{p.machineId || 'MQTT_TRIGGER'}</td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-[11px] text-gray-500">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-gray-500 font-medium whitespace-normal break-words select-text`}>
+                      {index + 1}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono font-bold text-gray-900 whitespace-normal break-words select-text`}>
+                      {p.machineId || 'MQTT_TRIGGER'}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-[11px] text-gray-500 whitespace-normal break-words select-text`}>
                       <div>Ref: {p.paymentId || 'N/A'}</div>
                       {(p.qrId || p.qr_id) && <div className="text-[9px] text-gray-400 mt-0.5 font-semibold">QR: {p.qrId || p.qr_id}</div>}
                     </td>
-                    <td className="py-2.5 px-4 border-r border-gray-200">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                       <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
                         p.method?.toLowerCase() === 'razorpay' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-purple-50 text-purple-700 border border-purple-200'
                       }`}>
@@ -373,7 +425,7 @@ export default function PaymentsHistory() {
                       </span>
                     </td>
                     {isAdmin && (
-                      <td className="py-2.5 px-4 border-r border-gray-200">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 whitespace-normal break-words select-text`}>
                         {(p.customerName || p.payerName) && (p.customerName !== 'N/A' && p.payerName !== 'N/A') ? (
                           <div className="text-[11px] space-y-0.5">
                             <p className="font-semibold text-gray-800 flex items-center gap-1">
@@ -389,15 +441,17 @@ export default function PaymentsHistory() {
                       </td>
                     )}
                     {isAdmin && (
-                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-[11px] text-gray-600">
+                      <td className={`${rowPadding} px-4 border-r border-gray-200 font-mono text-[11px] text-gray-600 whitespace-normal break-words select-text`}>
                         {p.customerPhone || p.payerPhone || 'N/A'}
                       </td>
                     )}
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900">₹{p.amount.toLocaleString()}</td>
-                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-500 font-mono text-[11px]">
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900 whitespace-normal break-words select-text`}>
+                      ₹{p.amount.toLocaleString()}
+                    </td>
+                    <td className={`${rowPadding} px-4 border-r border-gray-200 text-gray-500 font-mono text-[11px] whitespace-normal break-words select-text`}>
                       {new Date(p.timestamp || p.createdAt).toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-4 text-center">
+                    <td className={`${rowPadding} px-4 text-center whitespace-normal break-words select-text`}>
                       <span className={`inline-flex px-2 py-0.5 rounded uppercase text-[9px] font-bold ${
                         p.status === 'paid' ? 'bg-green-50 text-green-700 border border-green-200' :
                         p.status === 'created' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-red-50 text-red-700 border border-red-200'
@@ -409,7 +463,7 @@ export default function PaymentsHistory() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={isAdmin ? 8 : 6} className="py-12 text-center text-gray-400">
+                  <td colSpan={isAdmin ? 9 : 7} className="py-12 text-center text-gray-400">
                     No transactions matching the selected filters.
                   </td>
                 </tr>
