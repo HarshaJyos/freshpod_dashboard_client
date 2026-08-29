@@ -95,11 +95,13 @@ export default function PaymentsHistory() {
 
       const amt = Number(newPayment.amount) || 0;
       const isMqtt = newPayment.method?.toLowerCase() === 'mqtt';
-      
+      const isPaid = newPayment.status?.toLowerCase() === 'paid';
+
       return {
-        totalAmount: prev.totalAmount + amt,
-        mqttAmount: isMqtt ? prev.mqttAmount + amt : prev.mqttAmount,
-        razorpayAmount: !isMqtt ? prev.razorpayAmount + amt : prev.razorpayAmount,
+        // Only count revenue if payment is confirmed paid
+        totalAmount: isPaid ? prev.totalAmount + amt : prev.totalAmount,
+        mqttAmount: (isPaid && isMqtt) ? prev.mqttAmount + amt : prev.mqttAmount,
+        razorpayAmount: (isPaid && !isMqtt) ? prev.razorpayAmount + amt : prev.razorpayAmount,
         count: prev.count + 1
       };
     });
