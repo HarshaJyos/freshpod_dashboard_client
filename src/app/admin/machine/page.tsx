@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import axiosInstance from '../../../lib/axios';
 import { 
-  FiCpu, FiMapPin, FiDollarSign, FiPlus, FiEye, 
+  FiCpu, FiMapPin, FiPlus, FiEye, 
   FiEdit2, FiTrash2, FiRefreshCw, FiUser, FiActivity,
   FiCheckCircle, FiX, FiSearch, FiFilter
 } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 interface Machine {
@@ -20,9 +21,9 @@ interface Machine {
   costPerTap: number;
   machineCost?: number;
   status: string;
-  assignedTo?: string;
-  dealership?: string;
-  operatorId?: string;
+  assignedTo?: any;
+  dealership?: any;
+  operatorId?: any;
   razorpayKeyId?: string;
   razorpayKeySecret?: string;
 }
@@ -234,12 +235,20 @@ export default function MachineManagement() {
 
   const getAssignedCustomer = (machine: Machine) => {
     if (!machine.assignedTo) return null;
-    return users.find(u => u._id === machine.assignedTo);
+    const customerId = typeof machine.assignedTo === 'object' ? machine.assignedTo.id : machine.assignedTo;
+    return users.find(u => u._id === customerId) || (typeof machine.assignedTo === 'object' ? machine.assignedTo : null);
   };
 
   const getDealership = (machine: Machine) => {
     if (!machine.dealership) return null;
-    return users.find(u => u._id === machine.dealership);
+    const dealershipId = typeof machine.dealership === 'object' ? machine.dealership.id : machine.dealership;
+    return users.find(u => u._id === dealershipId) || (typeof machine.dealership === 'object' ? machine.dealership : null);
+  };
+
+  const getOperator = (machine: Machine) => {
+    if (!machine.operatorId) return null;
+    const opId = typeof machine.operatorId === 'object' ? machine.operatorId.id : machine.operatorId;
+    return users.find(u => u._id === opId) || (typeof machine.operatorId === 'object' ? machine.operatorId : null);
   };
 
   const filteredMachines = machines.filter(machine => {
@@ -300,82 +309,149 @@ export default function MachineManagement() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredMachines.length > 0 ? (
-          filteredMachines.map((m) => {
-            const customer = getAssignedCustomer(m);
-            const dealer = getDealership(m);
-            return (
-              <div key={m._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="p-2 rounded-lg bg-blue-50 text-blue-600"><FiCpu /></span>
-                      <div>
-                        <h3 className="font-bold text-gray-800">{m.machineId}</h3>
-                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Node ID</p>
-                      </div>
-                    </div>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      m.status === 'active' ? 'bg-green-50 text-green-600' :
-                      m.status === 'idle' ? 'bg-yellow-50 text-yellow-600' : 'bg-red-50 text-red-600'
-                    }`}>
-                      {m.status}
-                    </span>
-                  </div>
+      {/* Table responsive layout */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden w-full">
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-full text-left border-collapse table-fixed">
+            <colgroup>
+              <col className="w-[180px] sm:w-[220px]" />
+              <col className="w-[200px] sm:w-[240px]" />
+              <col className="w-[120px]" />
+              <col className="w-[240px] sm:w-[280px]" />
+              <col className="w-[130px]" />
+              <col className="w-[150px]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Node ID</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Location</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Cost Per Tap</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Allocations</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold text-center">Status</th>
+                <th className="py-3 px-4 border-b border-gray-200 text-center font-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm text-gray-700">
+              {filteredMachines.length > 0 ? (
+                filteredMachines.map((m) => {
+                  const customer = getAssignedCustomer(m);
+                  const dealer = getDealership(m);
+                  const operator = getOperator(m);
+                  return (
+                    <tr key={m._id} className="hover:bg-gray-50/45 transition-colors border-b border-gray-200 last:border-b-0">
+                      {/* Node ID */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        <div className="flex items-center gap-2">
+                          <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 shrink-0">
+                            <FiCpu size={14} />
+                          </span>
+                          <div className="min-w-0">
+                            <span className="font-bold text-gray-900 block truncate font-mono text-sm">{m.machineId}</span>
+                            <span className="text-[10px] text-gray-400 font-mono tracking-wider block truncate">REF: {m.qrId || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </td>
 
-                  <div className="space-y-2 text-sm text-gray-600 mb-6">
-                    <div className="flex gap-2 items-center">
-                      <FiMapPin className="text-gray-400" />
-                      <span>{m.location}, {m.state || 'N/A'}, {m.country}</span>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <FiDollarSign className="text-gray-400" />
-                      <span>Cost per Tap: <strong className="text-gray-900">₹{m.costPerTap}</strong></span>
-                    </div>
-                    <div className="pt-2 border-t border-gray-50 mt-2 space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-400">Dealership Partner:</span>
-                        <span className="font-semibold text-gray-700">{dealer ? dealer.name : 'Unassigned'}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-400">Customer Tenant:</span>
-                        <span className="font-semibold text-gray-700">{customer ? customer.name : 'Unassigned'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                      {/* Location */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        <div className="flex items-center gap-2">
+                          <FiMapPin className="text-gray-400 shrink-0" size={14} />
+                          <div className="min-w-0">
+                            <span className="font-semibold text-gray-800 block truncate text-sm">{m.location}</span>
+                            <span className="text-xs text-gray-400 block truncate">{m.state || 'N/A'}, {m.country}</span>
+                          </div>
+                        </div>
+                      </td>
 
-                <div className="flex gap-2 pt-4 border-t border-gray-50">
-                  <button 
-                    onClick={() => { setSelectedMachine(m); setShowDetailsModal(true); }}
-                    className="flex-1 py-2 border border-gray-100 hover:bg-gray-50 text-gray-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <FiEye /> View
-                  </button>
-                  <button 
-                    onClick={() => openEditModal(m)}
-                    className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <FiEdit2 /> Settings
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteMachine(m._id)}
-                    className="p-2 border border-red-100 hover:bg-red-50 text-red-500 rounded-lg text-xs font-semibold cursor-pointer"
-                    title="Delete Machine"
-                  >
-                    <FiTrash2 />
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="col-span-full py-16 text-center text-gray-400 text-sm">
-            No machines matching the search filters.
-          </div>
-        )}
+                      {/* Cost per Tap */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        <div className="flex items-center gap-1 font-mono font-bold text-gray-900 text-sm">
+                          <FaRupeeSign size={11} className="text-gray-400 shrink-0" />
+                          <span>{m.costPerTap.toFixed(2)}</span>
+                        </div>
+                      </td>
+
+                      {/* Allocations nested grid with sheet style cells */}
+                      <td className="p-0 border-r border-gray-200 align-stretch">
+                        <div className="flex flex-col h-full text-xs font-mono select-none">
+                          <div className="flex items-center border-b border-gray-200 py-1.5 px-3 bg-gray-50/20 gap-2">
+                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider w-16 shrink-0">Dealer</span>
+                            <span className="text-gray-400 font-bold shrink-0">:</span>
+                            <span className={`font-semibold truncate max-w-[150px] text-left ${dealer ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                              {dealer ? dealer.name : 'Unassigned'}
+                            </span>
+                          </div>
+                          <div className="flex items-center border-b border-gray-200 py-1.5 px-3 bg-white gap-2">
+                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider w-16 shrink-0">Customer</span>
+                            <span className="text-gray-400 font-bold shrink-0">:</span>
+                            <span className={`font-semibold truncate max-w-[150px] text-left ${customer ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                              {customer ? customer.name : 'Unassigned'}
+                            </span>
+                          </div>
+                          <div className="flex items-center py-1.5 px-3 bg-gray-50/20 gap-2">
+                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider w-16 shrink-0">Operator</span>
+                            <span className="text-gray-400 font-bold shrink-0">:</span>
+                            <span className={`font-semibold truncate max-w-[150px] text-left ${operator ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                              {operator ? operator.name : 'Unassigned'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle text-center">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200/50' :
+                          m.status === 'idle' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200/50' : 
+                          'bg-red-50 text-red-700 border border-red-200/50'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            m.status === 'active' ? 'bg-green-500 animate-pulse' :
+                            m.status === 'idle' ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}></span>
+                          {m.status}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3 px-4 align-middle text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => { setSelectedMachine(m); setShowDetailsModal(true); }}
+                            className="p-1.5 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-gray-500 hover:text-gray-700 rounded-lg transition-all cursor-pointer shadow-sm"
+                            title="View Details"
+                          >
+                            <FiEye size={13} />
+                          </button>
+                          <button
+                            onClick={() => openEditModal(m)}
+                            className="p-1.5 border border-blue-200 bg-blue-50/50 hover:bg-blue-100/70 hover:border-blue-300 text-blue-600 hover:text-blue-700 rounded-lg transition-all cursor-pointer shadow-sm"
+                            title="Settings"
+                          >
+                            <FiEdit2 size={13} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMachine(m._id)}
+                            className="p-1.5 border border-red-200 bg-red-50/50 hover:bg-red-100/70 hover:border-red-300 text-red-500 hover:text-red-600 rounded-lg transition-all cursor-pointer shadow-sm"
+                            title="Delete Machine"
+                          >
+                            <FiTrash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-gray-400 text-xs italic">
+                    No telemetry kiosks registered matching filters.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Create Modal */}
@@ -562,7 +638,10 @@ export default function MachineManagement() {
                       <p className="font-bold text-gray-700 mt-0.5">{getDealership(selectedMachine)?.name || 'None Assigned'}</p>
                     </div>
                     {selectedMachine.dealership && (
-                      <button onClick={() => handleUnassignMachine(selectedMachine._id, selectedMachine.dealership!)} className="text-red-500 hover:text-red-700 font-semibold cursor-pointer">Unassign</button>
+                      <button onClick={() => {
+                        const dlId = typeof selectedMachine.dealership === 'object' ? selectedMachine.dealership.id : selectedMachine.dealership;
+                        handleUnassignMachine(selectedMachine._id, dlId);
+                      }} className="text-red-500 hover:text-red-700 font-semibold cursor-pointer">Unassign</button>
                     )}
                   </div>
                   <div className="flex justify-between items-center text-xs pt-2 border-t border-gray-50">
@@ -571,7 +650,22 @@ export default function MachineManagement() {
                       <p className="font-bold text-gray-700 mt-0.5">{getAssignedCustomer(selectedMachine)?.name || 'None Assigned'}</p>
                     </div>
                     {selectedMachine.assignedTo && (
-                      <button onClick={() => handleUnassignMachine(selectedMachine._id, selectedMachine.assignedTo!)} className="text-red-500 hover:text-red-700 font-semibold cursor-pointer">Unassign</button>
+                      <button onClick={() => {
+                        const custId = typeof selectedMachine.assignedTo === 'object' ? selectedMachine.assignedTo.id : selectedMachine.assignedTo;
+                        handleUnassignMachine(selectedMachine._id, custId);
+                      }} className="text-red-500 hover:text-red-700 font-semibold cursor-pointer">Unassign</button>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center text-xs pt-2 border-t border-gray-50">
+                    <div>
+                      <p className="text-gray-400 font-medium">Operator Staff</p>
+                      <p className="font-bold text-gray-700 mt-0.5">{getOperator(selectedMachine)?.name || 'None Assigned'}</p>
+                    </div>
+                    {selectedMachine.operatorId && (
+                      <button onClick={() => {
+                        const opId = typeof selectedMachine.operatorId === 'object' ? selectedMachine.operatorId.id : selectedMachine.operatorId;
+                        handleUnassignMachine(selectedMachine._id, opId);
+                      }} className="text-red-500 hover:text-red-700 font-semibold cursor-pointer">Unassign</button>
                     )}
                   </div>
                 </div>

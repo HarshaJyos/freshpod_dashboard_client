@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import axiosInstance from '../../lib/axios';
-import axios from 'axios';
 import { 
   FiCpu, FiActivity, FiDollarSign, FiUsers, FiCalendar, FiUserPlus, FiUser, 
   FiTrash2, FiEdit2, FiPlus, FiX, FiCheckCircle, FiAlertCircle, FiSettings, FiZap
@@ -54,16 +53,7 @@ export default function CustomerDashboard() {
 
   const qrAmountOptions = [49, 59, 69, 79, 89, 99, 109];
 
-  // External QR OTA Service
-  const qrService = useMemo(() => {
-    return axios.create({
-      baseURL: 'https://freshpod-ota-r3b9.onrender.com',
-      timeout: 100000,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-  }, []);
+  // NOTE: QR amount updates go to our own backend, not an external OTA service.
 
   const fetchDashboardData = async () => {
     try {
@@ -208,19 +198,20 @@ export default function CustomerDashboard() {
     const qrValueToSend = amountIndex !== -1 ? amountIndex : 0;
 
     try {
-      await qrService.put(
+      // Call own backend — not an external OTA server
+      await axiosInstance.put(
         `/api/machine/${machineId}/qr`,
         { qrValue: qrValueToSend },
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
-      toast.success(`QR updated successfully for machine ${machineId} to ₹${qrAmount} (Index: ${qrValueToSend})`);
+      toast.success(`QR updated for machine ${machineId} to ₹${qrAmount} (Index: ${qrValueToSend}). ESP32 will receive config update via MQTT.`);
       setShowQRModal(false);
       setSelectedQRMachine(null);
       refetch();
       fetchCustomerMachines();
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to update QR amount on OTA server.');
+      toast.error(error.response?.data?.message || 'Failed to update QR amount.');
     } finally {
       setQrSubmitting(false);
     }
@@ -253,7 +244,8 @@ export default function CustomerDashboard() {
 
   const machinesArray = machines ? Object.values(machines) : [];
   const totalTaps = machinesArray.reduce((sum, m) => sum + (m.totalTaps || 0), 0);
-  const totalRevenue = machinesArray.reduce((sum, m) => sum + (m.totalRevenue !== undefined ? m.totalRevenue : (m.totalTaps || 0) * (m.costPerTap || 70.00)), 0);
+  // Use real MongoDB payment revenue from dashboard stats (not tap estimation)
+  const totalRevenue = dashboardStats?.totalRevenueMonth ?? machinesArray.reduce((sum, m) => sum + (m.monthlyRevenue || 0), 0);
 
   if (loading || dataLoading) {
     return (

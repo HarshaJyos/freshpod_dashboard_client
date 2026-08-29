@@ -6,8 +6,9 @@ import axiosInstance from '../../../lib/axios';
 import { useData } from '../../../context/DataContext';
 import { 
   FiCpu, FiMapPin, FiEdit2, FiSave, FiX, FiEye, 
-  FiDollarSign, FiAlertCircle, FiInfo, FiRefreshCw
+  FiAlertCircle, FiInfo, FiRefreshCw
 } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 interface MachineData {
@@ -181,146 +182,188 @@ export default function CustomerMachines() {
         </div>
       </div>
 
-      {/* Machines List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {machineList.map((machine) => {
-          const monthlyRevenue = machine.monthlyRevenue || 0;
-          const monthlyExpenses = machine.monthlyExpenses || 0;
-          const monthlyNetProfit = machine.monthlyNetProfit || 0;
-          const isProfitable = monthlyNetProfit >= 0;
+      {/* Table responsive layout */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden w-full">
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-full text-left border-collapse table-fixed">
+            <colgroup>
+              <col className="w-[180px] sm:w-[220px]" />
+              <col className="w-[200px] sm:w-[240px]" />
+              <col className="w-[120px]" />
+              <col className="w-[150px]" />
+              <col className="w-[180px]" />
+              <col className="w-[180px]" />
+              <col className="w-[160px]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Node ID</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Location</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold text-center">Status</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Price/Tap</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Maint/Month</th>
+                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Rent/Month</th>
+                <th className="py-3 px-4 border-b border-gray-200 text-center font-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm text-gray-700">
+              {machineList.length > 0 ? (
+                machineList.map((machine) => {
+                  return (
+                    <tr key={machine._id} className="hover:bg-gray-50/40 transition-colors border-b border-gray-200 last:border-b-0">
+                      {/* Node ID */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        <div className="flex items-center gap-2">
+                          <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 shrink-0">
+                            <FiCpu size={14} />
+                          </span>
+                          <div className="min-w-0">
+                            <span className="font-bold text-gray-900 block truncate font-mono text-sm">{machine.machineId}</span>
+                            <span className="text-[10px] text-gray-400 font-mono tracking-wider block truncate">REF: {machine.qrId || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </td>
 
-          return (
-            <div key={machine._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
-              <div className="p-6 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-2">
-                    <span className="p-2 rounded-lg bg-blue-50 text-blue-600"><FiCpu /></span>
-                    <div>
-                      <h4 className="font-bold text-gray-800">{machine.machineId}</h4>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <FiMapPin size={10} className="text-gray-400" />
-                        <span className="text-[10px] text-gray-500 font-semibold">{machine.location}, {machine.state || 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                    machine.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
-                  }`}>
-                    {machine.status}
-                  </span>
-                </div>
+                      {/* Location */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        <div className="flex items-center gap-2">
+                          <FiMapPin className="text-gray-400 shrink-0" size={14} />
+                          <div className="min-w-0">
+                            <span className="font-semibold text-gray-800 block truncate text-sm">{machine.location}</span>
+                            <span className="text-xs text-gray-400 block truncate">{machine.state || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </td>
 
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Edit Cost Per Tap */}
-                  <div className="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100 flex flex-col justify-center min-h-[50px]">
-                    <p className="text-[10px] text-gray-400 font-semibold mb-1">Price/Tap</p>
-                    {editingField.machineId === machine._id && editingField.field === 'costPerTap' ? (
-                      <div className="flex items-center justify-center gap-1">
-                        <input 
-                          type="number" 
-                          value={editValue} 
-                          onChange={(e) => setEditValue(e.target.value)} 
-                          className="w-12 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" 
-                          step="0.1" 
-                          min="0.1"
-                          disabled={updating}
-                        />
-                        <button onClick={() => handleSaveField(machine._id, 'costPerTap', editValue)} className="text-green-600" disabled={updating}>
-                          <FiSave size={12} />
-                        </button>
-                        <button onClick={() => setEditingField({ machineId: null, field: null })} className="text-red-600">
-                          <FiX size={12} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span className="text-sm font-bold text-gray-800">₹{machine.costPerTap}</span>
-                        <button onClick={() => startEditing(machine._id, 'costPerTap', machine.costPerTap)} className="text-gray-400 hover:text-blue-600">
-                          <FiEdit2 size={10} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                      {/* Status */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle text-center">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          machine.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200/50' :
+                          'bg-yellow-50 text-yellow-700 border border-yellow-200/50'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            machine.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+                          }`}></span>
+                          {machine.status}
+                        </span>
+                      </td>
 
-                  {/* Edit Maintenance cost */}
-                  <div className="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100 flex flex-col justify-center min-h-[50px]">
-                    <p className="text-[10px] text-gray-400 font-semibold mb-1">Maint/Month</p>
-                    {editingField.machineId === machine._id && editingField.field === 'maintenanceCostPerMonth' ? (
-                      <div className="flex items-center justify-center gap-1">
-                        <input 
-                          type="number" 
-                          value={editValue} 
-                          onChange={(e) => setEditValue(e.target.value)} 
-                          className="w-16 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" 
-                          step="100" 
-                          min="0"
-                          disabled={updating}
-                        />
-                        <button onClick={() => handleSaveField(machine._id, 'maintenanceCostPerMonth', editValue)} className="text-green-600" disabled={updating}>
-                          <FiSave size={12} />
-                        </button>
-                        <button onClick={() => setEditingField({ machineId: null, field: null })} className="text-red-600">
-                          <FiX size={12} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span className="text-sm font-bold text-gray-800">₹{(machine.maintenanceCostPerMonth || 0).toLocaleString()}</span>
-                        <button onClick={() => startEditing(machine._id, 'maintenanceCostPerMonth', machine.maintenanceCostPerMonth || 0)} className="text-gray-400 hover:text-blue-600">
-                          <FiEdit2 size={10} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                      {/* Price/Tap */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        {editingField.machineId === machine._id && editingField.field === 'costPerTap' ? (
+                          <div className="flex items-center gap-1">
+                            <input 
+                              type="number" 
+                              value={editValue} 
+                              onChange={(e) => setEditValue(e.target.value)} 
+                              className="w-16 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" 
+                              step="0.1" 
+                              min="0.1"
+                              disabled={updating}
+                            />
+                            <button onClick={() => handleSaveField(machine._id, 'costPerTap', editValue)} className="text-green-600 cursor-pointer" disabled={updating}>
+                              <FiSave size={12} />
+                            </button>
+                            <button onClick={() => setEditingField({ machineId: null, field: null })} className="text-red-600 cursor-pointer">
+                              <FiX size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 font-mono font-bold text-gray-900 text-sm">
+                            <FaRupeeSign size={11} className="text-gray-400" />
+                            <span>{machine.costPerTap.toFixed(2)}</span>
+                            <button onClick={() => startEditing(machine._id, 'costPerTap', machine.costPerTap)} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                              <FiEdit2 size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
 
-                  {/* Edit Rent */}
-                  <div className="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100 flex flex-col justify-center min-h-[50px]">
-                    <p className="text-[10px] text-gray-400 font-semibold mb-1">Rent/Month</p>
-                    {editingField.machineId === machine._id && editingField.field === 'rentPerMonth' ? (
-                      <div className="flex items-center justify-center gap-1">
-                        <input 
-                          type="number" 
-                          value={editValue} 
-                          onChange={(e) => setEditValue(e.target.value)} 
-                          className="w-16 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" 
-                          step="100" 
-                          min="0"
-                          disabled={updating}
-                        />
-                        <button onClick={() => handleSaveField(machine._id, 'rentPerMonth', editValue)} className="text-green-600" disabled={updating}>
-                          <FiSave size={12} />
-                        </button>
-                        <button onClick={() => setEditingField({ machineId: null, field: null })} className="text-red-600">
-                          <FiX size={12} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span className="text-sm font-bold text-gray-800">₹{(machine.rentPerMonth || 0).toLocaleString()}</span>
-                        <button onClick={() => startEditing(machine._id, 'rentPerMonth', machine.rentPerMonth || 0)} className="text-gray-400 hover:text-blue-600">
-                          <FiEdit2 size={10} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      {/* Maint/Month */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        {editingField.machineId === machine._id && editingField.field === 'maintenanceCostPerMonth' ? (
+                          <div className="flex items-center gap-1">
+                            <input 
+                              type="number" 
+                              value={editValue} 
+                              onChange={(e) => setEditValue(e.target.value)} 
+                              className="w-20 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" 
+                              step="100" 
+                              min="0"
+                              disabled={updating}
+                            />
+                            <button onClick={() => handleSaveField(machine._id, 'maintenanceCostPerMonth', editValue)} className="text-green-600 cursor-pointer" disabled={updating}>
+                              <FiSave size={12} />
+                            </button>
+                            <button onClick={() => setEditingField({ machineId: null, field: null })} className="text-red-600 cursor-pointer">
+                              <FiX size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 font-mono font-bold text-gray-900 text-sm">
+                            <FaRupeeSign size={11} className="text-gray-400" />
+                            <span>{(machine.maintenanceCostPerMonth || 0).toFixed(2)}</span>
+                            <button onClick={() => startEditing(machine._id, 'maintenanceCostPerMonth', machine.maintenanceCostPerMonth || 0)} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                              <FiEdit2 size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
 
-                <button 
-                  onClick={() => setSelectedMachine(machine)} 
-                  className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <FiEye /> Audit financial statement
-                </button>
-              </div>
-            </div>
-          );
-        })}
-        {machineList.length === 0 && (
-          <div className="col-span-full py-16 text-center bg-white rounded-2xl border border-gray-100">
-            <FiCpu className="text-4xl text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No kiosks assigned to your customer account yet.</p>
-          </div>
-        )}
+                      {/* Rent/Month */}
+                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                        {editingField.machineId === machine._id && editingField.field === 'rentPerMonth' ? (
+                          <div className="flex items-center gap-1">
+                            <input 
+                              type="number" 
+                              value={editValue} 
+                              onChange={(e) => setEditValue(e.target.value)} 
+                              className="w-20 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" 
+                              step="100" 
+                              min="0"
+                              disabled={updating}
+                            />
+                            <button onClick={() => handleSaveField(machine._id, 'rentPerMonth', editValue)} className="text-green-600 cursor-pointer" disabled={updating}>
+                              <FiSave size={12} />
+                            </button>
+                            <button onClick={() => setEditingField({ machineId: null, field: null })} className="text-red-600 cursor-pointer">
+                              <FiX size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 font-mono font-bold text-gray-900 text-sm">
+                            <FaRupeeSign size={11} className="text-gray-400" />
+                            <span>{(machine.rentPerMonth || 0).toFixed(2)}</span>
+                            <button onClick={() => startEditing(machine._id, 'rentPerMonth', machine.rentPerMonth || 0)} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                              <FiEdit2 size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3 px-4 align-middle text-center">
+                        <button 
+                          onClick={() => setSelectedMachine(machine)} 
+                          className="w-full py-1.5 border border-blue-200 bg-blue-50/50 hover:bg-blue-100/70 hover:border-blue-300 text-blue-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                        >
+                          <FiEye size={13} />
+                          <span>Statement</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-gray-400 text-xs italic">
+                    No telemetry kiosks registered under your client profile.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Detail Financial Statement Modal */}
