@@ -212,12 +212,12 @@ export default function PaymentsHistory() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2 tracking-tight">
-            <CreditCard className="text-blue-600" /> Transaction Registry
+          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2 tracking-tight">
+            <CreditCard size={18} className="text-blue-600" /> Transaction Registry
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-xs mt-1">
             {isAdmin 
               ? 'View all global telemetry and online payment links logs'
               : 'Audit transactions and telemetry payments for your assigned kiosks'}
@@ -225,97 +225,80 @@ export default function PaymentsHistory() {
         </div>
         
         {/* Verify Action & Refresh */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <form onSubmit={handleVerifyManual} className="flex gap-2 bg-white p-1.5 border border-gray-200 rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-blue-500 max-w-md w-full">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <form onSubmit={handleVerifyManual} className="flex gap-1.5 bg-white p-1 border border-gray-200 rounded max-w-md w-full">
             <input
               type="text"
               placeholder="Verify Link ID (e.g. qr_...)"
               value={manualQrId}
               onChange={(e) => setManualQrId(e.target.value)}
-              className="px-3 py-1.5 outline-none text-sm w-full bg-transparent text-gray-700"
+              className="px-2.5 py-1 outline-none text-xs w-full bg-transparent text-gray-700 font-mono"
               disabled={verifyLoading}
             />
             <button
               type="submit"
               disabled={verifyLoading || !manualQrId.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition-all disabled:opacity-50 whitespace-nowrap cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1.5 rounded transition-all disabled:opacity-50 whitespace-nowrap cursor-pointer"
             >
-              {verifyLoading ? 'Checking...' : 'Verify Link'}
+              {verifyLoading ? 'Checking...' : 'Verify'}
             </button>
           </form>
           
           <button
             onClick={fetchPayments}
-            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 p-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center cursor-pointer"
+            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 p-2 rounded transition-all flex items-center justify-center cursor-pointer"
             title="Reload Transaction Logs"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={14} />
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-800 text-sm mb-6">
-          <AlertCircle className="shrink-0" />
+        <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs mb-4 flex items-center gap-2">
+          <AlertCircle size={14} className="shrink-0" />
           <p>{error}</p>
         </div>
       )}
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Collection</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">₹{(summary.totalAmount).toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Dispenser turnover</p>
+      {/* Summary Stats - Flat PowerBI Style */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: "Total Collection", val: `₹${summary.totalAmount.toLocaleString()}`, sub: "Dispenser turnover", icon: <Coins size={16} /> },
+          { label: "Offline (Telemetry)", val: `₹${summary.mqttAmount.toLocaleString()}`, sub: "MQTT physical runs", icon: <Wifi size={16} /> },
+          { label: "Online Gateway", val: `₹${summary.razorpayAmount.toLocaleString()}`, sub: "Razorpay link checkouts", icon: <CreditCard size={16} /> },
+          { label: "Total Checks", val: summary.count.toLocaleString(), sub: "Logged records", icon: <TrendingUp size={16} /> }
+        ].map((item, idx) => (
+          <div key={idx} className="bg-white border border-gray-200 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{item.label}</p>
+              <p className="text-xl font-bold text-gray-800 mt-1 font-mono">{item.val}</p>
+              <p className="text-[9px] text-gray-400 font-semibold mt-0.5">{item.sub}</p>
+            </div>
+            <span className="text-gray-400">{item.icon}</span>
           </div>
-          <span className="p-3 rounded-xl bg-blue-50 text-blue-600 text-xl"><Coins /></span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Offline (Telemetry)</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">₹{(summary.mqttAmount).toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">MQTT physical triggers</p>
-          </div>
-          <span className="p-3 rounded-xl bg-purple-50 text-purple-600 text-xl"><Wifi /></span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Online Gateway</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">₹{(summary.razorpayAmount).toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Razorpay link checkouts</p>
-          </div>
-          <span className="p-3 rounded-xl bg-green-50 text-green-600 text-xl"><CreditCard /></span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Checks</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">{summary.count.toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Logged records</p>
-          </div>
-          <span className="p-3 rounded-xl bg-indigo-50 text-indigo-600 text-xl"><TrendingUp /></span>
-        </div>
+        ))}
       </div>
 
       {/* Filter and Table Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200 overflow-hidden">
         {/* Controls */}
-        <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="p-4 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:max-w-xs">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></span>
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"><Search size={14} /></span>
             <input
               type="text"
               placeholder="Filter by Machine ID..."
               value={searchMachine}
               onChange={(e) => setSearchMachine(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none"
+              className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none"
             />
           </div>
-          <div className="flex flex-wrap gap-3 items-center w-full sm:w-auto justify-end">
+          <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto justify-end">
             <select
               value={filterMethod}
               onChange={(e) => setFilterMethod(e.target.value)}
-              className="bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
+              className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
             >
               <option value="All">All Methods</option>
               <option value="mqtt">MQTT Offline</option>
@@ -324,7 +307,7 @@ export default function PaymentsHistory() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
+              className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
             >
               <option value="All">All Statuses</option>
               <option value="paid">Paid</option>
@@ -334,14 +317,14 @@ export default function PaymentsHistory() {
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
-              className="bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
+              className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
             </select>
             <button
               onClick={handleExportExcel}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm cursor-pointer transition-colors duration-200"
+              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold cursor-pointer transition-colors"
             >
               <Download size={12} /> Export Excel
             </button>
@@ -350,39 +333,49 @@ export default function PaymentsHistory() {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse table-fixed min-w-[900px]">
+            <colgroup>
+              <col className="w-[12%]" />
+              <col className="w-[20%]" />
+              <col className="w-[10%]" />
+              {isAdmin && <col className="w-[18%]" />}
+              {isAdmin && <col className="w-[12%]" />}
+              <col className="w-[10%]" />
+              <col className="w-[18%]" />
+              <col className="w-[10%]" />
+            </colgroup>
             <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                <th className="py-4 px-6">Machine Node</th>
-                <th className="py-4 px-6">Gateway ID / Ref</th>
-                <th className="py-4 px-6">Method</th>
-                {userRole === 'admin' && <th className="py-4 px-6">Payer details</th>}
-                {userRole === 'admin' && <th className="py-4 px-6">Phone Number</th>}
-                <th className="py-4 px-6">Yield (₹)</th>
-                <th className="py-4 px-6">Timestamp</th>
-                <th className="py-4 px-6">Status</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                <th className="py-2.5 px-4 border-r border-gray-200">Machine Node</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Gateway ID / Ref</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Method</th>
+                {isAdmin && <th className="py-2.5 px-4 border-r border-gray-200">Payer Details</th>}
+                {isAdmin && <th className="py-2.5 px-4 border-r border-gray-200">Phone</th>}
+                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Yield (₹)</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Timestamp</th>
+                <th className="py-2.5 px-4 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-200">
               {filteredPayments.length > 0 ? (
                 filteredPayments.map((p) => (
-                  <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-6 font-bold text-gray-800">{p.machineId || 'MQTT_TRIGGER'}</td>
-                    <td className="py-4 px-6 font-mono text-xs text-gray-500">
+                  <tr key={p._id} className="hover:bg-gray-50/50 transition-colors text-xs">
+                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-900">{p.machineId || 'MQTT_TRIGGER'}</td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-[11px] text-gray-500">
                       <div>Ref: {p.paymentId || 'N/A'}</div>
-                      {(p.qrId || p.qr_id) && <div className="text-[10px] text-gray-400 mt-0.5 font-semibold">QR: {p.qrId || p.qr_id}</div>}
+                      {(p.qrId || p.qr_id) && <div className="text-[9px] text-gray-400 mt-0.5 font-semibold">QR: {p.qrId || p.qr_id}</div>}
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                        p.method?.toLowerCase() === 'razorpay' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600'
+                    <td className="py-2.5 px-4 border-r border-gray-200">
+                      <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
+                        p.method?.toLowerCase() === 'razorpay' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-purple-50 text-purple-700 border border-purple-200'
                       }`}>
-                        {p.method?.toLowerCase() === 'razorpay' ? 'Online' : 'MQTT Code'}
+                        {p.method?.toLowerCase() === 'razorpay' ? 'Online' : p.method || 'MQTT'}
                       </span>
                     </td>
-                    {userRole === 'admin' && (
-                      <td className="py-4 px-6">
+                    {isAdmin && (
+                      <td className="py-2.5 px-4 border-r border-gray-200">
                         {(p.customerName || p.payerName) && (p.customerName !== 'N/A' && p.payerName !== 'N/A') ? (
-                          <div className="text-xs space-y-0.5">
+                          <div className="text-[11px] space-y-0.5">
                             <p className="font-semibold text-gray-800 flex items-center gap-1">
                               <User size={10} /> {p.customerName || p.payerName}
                             </p>
@@ -391,24 +384,23 @@ export default function PaymentsHistory() {
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400 font-medium">Anonymous / Kiosk Cash</span>
+                          <span className="text-[11px] text-gray-400 font-medium">Anonymous / Cash</span>
                         )}
                       </td>
                     )}
-                    {userRole === 'admin' && (
-                      <td className="py-4 px-6 font-mono text-xs text-gray-600">
+                    {isAdmin && (
+                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono text-[11px] text-gray-600">
                         {p.customerPhone || p.payerPhone || 'N/A'}
                       </td>
                     )}
-                    <td className="py-4 px-6 font-semibold text-gray-900">₹{p.amount.toLocaleString()}</td>
-                    <td className="py-4 px-6 text-xs text-gray-500 flex items-center gap-1 mt-2.5">
-                      <Calendar size={12} className="text-gray-400" />
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900">₹{p.amount.toLocaleString()}</td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-500 font-mono text-[11px]">
                       {new Date(p.timestamp || p.createdAt).toLocaleString()}
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        p.status === 'paid' ? 'bg-green-50 text-green-600' :
-                        p.status === 'created' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'
+                    <td className="py-2.5 px-4 text-center">
+                      <span className={`inline-flex px-2 py-0.5 rounded uppercase text-[9px] font-bold ${
+                        p.status === 'paid' ? 'bg-green-50 text-green-700 border border-green-200' :
+                        p.status === 'created' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-red-50 text-red-700 border border-red-200'
                       }`}>
                         {p.status}
                       </span>
@@ -417,7 +409,7 @@ export default function PaymentsHistory() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={userRole === 'admin' ? 8 : 6} className="py-8 text-center text-gray-400">
+                  <td colSpan={isAdmin ? 8 : 6} className="py-12 text-center text-gray-400">
                     No transactions matching the selected filters.
                   </td>
                 </tr>

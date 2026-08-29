@@ -47,44 +47,58 @@ export default function OperatorMachines() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Assigned Fleet Nodes</h1>
-        <p className="text-gray-500 text-sm mt-1">Audit local kiosk hardware clusters under your supervision</p>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Assigned Fleet Nodes</h1>
+        <p className="text-gray-500 text-xs mt-1">Audit local kiosk hardware clusters under your supervision</p>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {machines.map((machine) => (
-          <div key={machine._id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <FiShield className="text-blue-600 text-lg shrink-0" />
-                <h3 className="font-bold text-gray-900 font-mono text-base">{machine.machineId}</h3>
-              </div>
-              <p className="text-xs text-gray-500 flex items-center gap-1 mb-4">
-                <FiMapPin size={12} className="text-gray-400" /> {machine.location}
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-50 text-xs">
-              <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100/50">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Today's Cycles</p>
-                <p className="font-bold text-gray-800 text-sm mt-0.5">{machine.todaysCycles || 0}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100/50">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Cost / Cycle</p>
-                <p className="font-bold text-blue-600 text-sm mt-0.5">₹{machine.costPerCycle || machine.costPerTap || 0}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {machines.length === 0 && (
-          <div className="col-span-full py-16 text-center bg-white rounded-2xl border border-gray-100">
-            <FiShield className="text-4xl text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-sm">No hardware kiosks assigned to your operator account.</p>
-          </div>
-        )}
+      {/* Spreadsheet Table */}
+      <div className="bg-white border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
+            <colgroup>
+              <col className="w-[20%]" />
+              <col className="w-[35%]" />
+              <col className="w-[20%]" />
+              <col className="w-[25%]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                <th className="py-2.5 px-4 border-r border-gray-200">Machine ID</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Today's Cycles</th>
+                <th className="py-2.5 px-4 text-right">Cost / Cycle</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {machines.length > 0 ? (
+                machines.map((machine) => (
+                  <tr key={machine._id} className="hover:bg-gray-50/50 transition-colors text-xs">
+                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-900 flex items-center gap-1.5">
+                      <FiShield className="text-blue-500 text-xs" /> {machine.machineId}
+                    </td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">
+                      {machine.location}
+                    </td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">
+                      {machine.todaysCycles || 0}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-blue-600 font-semibold">
+                      ₹{machine.costPerCycle || machine.costPerTap || 0}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-12 text-center text-gray-400">
+                    <FiShield className="text-3xl text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs">No hardware kiosks assigned to your operator account.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

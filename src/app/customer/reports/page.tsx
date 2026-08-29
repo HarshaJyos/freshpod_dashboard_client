@@ -79,51 +79,51 @@ export default function CustomerReports() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Support Requests</h1>
-          <p className="text-gray-500 text-sm mt-1">Audit, monitor, and submit support/sanitization reports</p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Support Requests</h1>
+          <p className="text-gray-500 text-xs mt-1">Audit, monitor, and submit support/sanitization reports</p>
         </div>
         <Link
           href="/customer/reports/create"
-          className="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1.5 shadow-sm shadow-blue-100 cursor-pointer"
+          className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1.5 cursor-pointer"
         >
           <FiPlus /> New Report
         </Link>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-800 text-sm mb-6">
+        <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs mb-4 flex items-center gap-2">
           <FiAlertCircle />
           <p>{error}</p>
         </div>
       )}
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-400 font-bold uppercase">Total Reports</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">{stats.total}</p>
+      {/* Stats Row - Flat PowerBI Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white p-4 border border-gray-200">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Reports</p>
+          <p className="text-xl font-bold text-gray-800 mt-1 font-mono">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-400 font-bold uppercase">Pending Review</p>
-          <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.pending}</p>
+        <div className="bg-white p-4 border border-gray-200">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Pending Review</p>
+          <p className="text-xl font-bold text-yellow-600 mt-1 font-mono">{stats.pending}</p>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-400 font-bold uppercase">Resolved</p>
-          <p className="text-2xl font-bold text-green-600 mt-1">{stats.solved}</p>
+        <div className="bg-white p-4 border border-gray-200">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Resolved</p>
+          <p className="text-xl font-bold text-green-600 mt-1 font-mono">{stats.solved}</p>
         </div>
       </div>
 
-      {/* Filter Options */}
-      <div className="flex gap-2 mb-6">
+      {/* Filter Options - Flat Style */}
+      <div className="flex gap-1.5 mb-4">
         {['all', 'pending', 'solved'].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded text-xs font-semibold transition-all cursor-pointer ${
               filter === f 
-                ? 'bg-blue-600 text-white shadow-sm shadow-blue-100' 
+                ? 'bg-blue-600 text-white' 
                 : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
             }`}
           >
@@ -133,37 +133,43 @@ export default function CustomerReports() {
       </div>
 
       {/* Reports List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {filteredReports.map((report) => (
           <Link
             key={report.reportId}
             href={`/customer/reports/${report.reportId}`}
-            className="block bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-all"
+            className="block bg-white border border-gray-200 p-4 hover:border-gray-300 transition-all"
           >
             <div className="flex justify-between items-start gap-4">
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-gray-900 leading-tight">{report.subject}</h3>
-                <p className="text-xs text-gray-400 truncate max-w-2xl">{report.description}</p>
-                <div className="flex items-center gap-3 pt-3 text-[10px] text-gray-400 font-semibold">
-                  <span>ID: {report.reportId}</span>
+                <h3 className="text-sm font-bold text-gray-900 leading-tight">{report.subject}</h3>
+                <p className="text-xs text-gray-500 truncate max-w-2xl">{report.description}</p>
+                <div className="flex items-center gap-3 pt-2 text-[10px] text-gray-400 font-semibold">
+                  <span className="font-mono text-gray-600">ID: {report.reportId}</span>
                   <span>•</span>
-                  <span className="flex items-center gap-1"><FiCalendar /> {new Date(report.createdAt).toLocaleString()}</span>
+                  <span className="flex items-center gap-1 font-mono"><FiCalendar /> {new Date(report.createdAt).toLocaleString()}</span>
                   {report.resolvedAt && (
                     <>
                       <span>•</span>
-                      <span className="text-green-600">Resolved: {new Date(report.resolvedAt).toLocaleString()}</span>
+                      <span className="text-green-600 font-mono">Resolved: {new Date(report.resolvedAt).toLocaleString()}</span>
                     </>
                   )}
                 </div>
               </div>
-              <div className="shrink-0">{getStatusBadge(report.status)}</div>
+              <div className="shrink-0">
+                <span className={`inline-flex px-2 py-0.5 rounded uppercase text-[9px] font-bold ${
+                  report.status === 'solved' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                }`}>
+                  {report.status}
+                </span>
+              </div>
             </div>
           </Link>
         ))}
 
         {filteredReports.length === 0 && (
-          <div className="py-16 text-center bg-white rounded-2xl border border-gray-100">
-            <p className="text-gray-400 text-sm">No support logs registered under this filter.</p>
+          <div className="py-12 text-center bg-white border border-gray-200 text-gray-400 text-xs">
+            No support logs registered under this filter.
           </div>
         )}
       </div>

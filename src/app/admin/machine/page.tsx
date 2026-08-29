@@ -269,29 +269,29 @@ export default function MachineManagement() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Machine Fleet Registry</h1>
-          <p className="text-gray-500 text-sm mt-1">Configure telemetry nodes, payment configs, and tenant allocations</p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Machine Fleet Registry</h1>
+          <p className="text-xs text-gray-500 mt-1">Configure telemetry nodes, payment configs, and tenant allocations</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowCreateModal(true); }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700 flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <FiPlus /> Add Machine
+          <FiPlus size={12} /> Add Machine
         </button>
       </div>
 
-      {/* Control Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
+      {/* Control Bar - Flat PowerBI Style */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><FiSearch /></span>
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"><FiSearch size={14} /></span>
           <input
             type="text"
             placeholder="Search by ID or Location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:outline-none shadow-sm"
+            className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none"
           />
         </div>
         <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -299,7 +299,7 @@ export default function MachineManagement() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-white border border-gray-200 px-3 py-2 rounded-xl text-sm focus:outline-none shadow-sm cursor-pointer font-medium"
+            className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
           >
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
@@ -309,8 +309,8 @@ export default function MachineManagement() {
         </div>
       </div>
 
-      {/* Table responsive layout */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden w-full">
+      {/* Table responsive layout - High density spreadsheet */}
+      <div className="bg-white border border-gray-200 overflow-hidden w-full">
         <div className="overflow-x-auto w-full">
           <table className="min-w-full text-left border-collapse table-fixed">
             <colgroup>
@@ -322,58 +322,55 @@ export default function MachineManagement() {
               <col className="w-[150px]" />
             </colgroup>
             <thead>
-              <tr className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Node ID</th>
-                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Location</th>
-                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Cost Per Tap</th>
-                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold">Allocations</th>
-                <th className="py-3 px-4 border-r border-b border-gray-200 font-bold text-center">Status</th>
-                <th className="py-3 px-4 border-b border-gray-200 text-center font-bold">Actions</th>
+              <tr className="bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold">Node ID</th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold">Location</th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold text-right">Cost Per Tap</th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold">Allocations</th>
+                <th className="py-2.5 px-4 border-r border-b border-gray-200 font-bold text-center">Status</th>
+                <th className="py-2.5 px-4 border-b border-gray-200 text-center font-bold">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-sm text-gray-700">
+            <tbody className="text-xs text-gray-700">
               {filteredMachines.length > 0 ? (
                 filteredMachines.map((m) => {
                   const customer = getAssignedCustomer(m);
                   const dealer = getDealership(m);
                   const operator = getOperator(m);
                   return (
-                    <tr key={m._id} className="hover:bg-gray-50/45 transition-colors border-b border-gray-200 last:border-b-0">
+                    <tr key={m._id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-200 last:border-b-0">
                       {/* Node ID */}
-                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
+                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle">
                         <div className="flex items-center gap-2">
-                          <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 shrink-0">
-                            <FiCpu size={14} />
+                          <span className="p-1 rounded bg-blue-50 text-blue-600 shrink-0">
+                            <FiCpu size={12} />
                           </span>
                           <div className="min-w-0">
-                            <span className="font-bold text-gray-900 block truncate font-mono text-sm">{m.machineId}</span>
-                            <span className="text-[10px] text-gray-400 font-mono tracking-wider block truncate">REF: {m.qrId || 'N/A'}</span>
+                            <span className="font-bold text-gray-900 block truncate font-mono">{m.machineId}</span>
+                            <span className="text-[9px] text-gray-400 font-mono tracking-wider block truncate">REF: {m.qrId || 'N/A'}</span>
                           </div>
                         </div>
                       </td>
 
                       {/* Location */}
-                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
-                        <div className="flex items-center gap-2">
-                          <FiMapPin className="text-gray-400 shrink-0" size={14} />
+                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <FiMapPin className="text-gray-400 shrink-0" size={12} />
                           <div className="min-w-0">
-                            <span className="font-semibold text-gray-800 block truncate text-sm">{m.location}</span>
-                            <span className="text-xs text-gray-400 block truncate">{m.state || 'N/A'}, {m.country}</span>
+                            <span className="font-semibold text-gray-800 block truncate">{m.location}</span>
+                            <span className="text-[10px] text-gray-400 block truncate">{m.state || 'N/A'}, {m.country}</span>
                           </div>
                         </div>
                       </td>
 
                       {/* Cost per Tap */}
-                      <td className="py-3 px-4 border-r border-gray-200 align-middle">
-                        <div className="flex items-center gap-1 font-mono font-bold text-gray-900 text-sm">
-                          <FaRupeeSign size={11} className="text-gray-400 shrink-0" />
-                          <span>{m.costPerTap.toFixed(2)}</span>
-                        </div>
+                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle text-right font-mono font-bold text-gray-900">
+                        <span>₹{m.costPerTap.toFixed(2)}</span>
                       </td>
 
                       {/* Allocations nested grid with sheet style cells */}
                       <td className="p-0 border-r border-gray-200 align-stretch">
-                        <div className="flex flex-col h-full text-xs font-mono select-none">
+                        <div className="flex flex-col h-full text-[10px] font-mono select-none">
                           <div className="flex items-center border-b border-gray-200 py-1.5 px-3 bg-gray-50/20 gap-2">
                             <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider w-16 shrink-0">Dealer</span>
                             <span className="text-gray-400 font-bold shrink-0">:</span>
@@ -399,13 +396,13 @@ export default function MachineManagement() {
                       </td>
 
                       {/* Status */}
-                      <td className="py-3 px-4 border-r border-gray-200 align-middle text-center">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                          m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200/50' :
-                          m.status === 'idle' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200/50' : 
-                          'bg-red-50 text-red-700 border border-red-200/50'
+                      <td className="py-2.5 px-4 border-r border-gray-200 align-middle text-center">
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+                          m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' :
+                          m.status === 'idle' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' : 
+                          'bg-red-50 text-red-700 border border-red-200'
                         }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
+                          <span className={`w-1 h-1 rounded-full ${
                             m.status === 'active' ? 'bg-green-500 animate-pulse' :
                             m.status === 'idle' ? 'bg-yellow-500' : 'bg-red-500'
                           }`}></span>
@@ -414,28 +411,28 @@ export default function MachineManagement() {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3 px-4 align-middle text-center">
+                      <td className="py-2.5 px-4 align-middle text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => { setSelectedMachine(m); setShowDetailsModal(true); }}
-                            className="p-1.5 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-gray-500 hover:text-gray-700 rounded-lg transition-all cursor-pointer shadow-sm"
+                            className="p-1 border border-gray-200 hover:bg-gray-50 text-gray-500 hover:text-gray-700 rounded transition-colors cursor-pointer"
                             title="View Details"
                           >
-                            <FiEye size={13} />
+                            <FiEye size={12} />
                           </button>
                           <button
                             onClick={() => openEditModal(m)}
-                            className="p-1.5 border border-blue-200 bg-blue-50/50 hover:bg-blue-100/70 hover:border-blue-300 text-blue-600 hover:text-blue-700 rounded-lg transition-all cursor-pointer shadow-sm"
+                            className="p-1 border border-blue-200 hover:bg-blue-50 text-blue-600 rounded transition-colors cursor-pointer"
                             title="Settings"
                           >
-                            <FiEdit2 size={13} />
+                            <FiEdit2 size={12} />
                           </button>
                           <button
                             onClick={() => handleDeleteMachine(m._id)}
-                            className="p-1.5 border border-red-200 bg-red-50/50 hover:bg-red-100/70 hover:border-red-300 text-red-500 hover:text-red-600 rounded-lg transition-all cursor-pointer shadow-sm"
+                            className="p-1 border border-red-200 hover:bg-red-50 text-red-500 rounded transition-colors cursor-pointer"
                             title="Delete Machine"
                           >
-                            <FiTrash2 size={13} />
+                            <FiTrash2 size={12} />
                           </button>
                         </div>
                       </td>

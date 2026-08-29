@@ -208,22 +208,22 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      {/* Stats Cards - Flat PowerBI Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         {[
-          { label: "Total Machines", val: stats.totalMachines, sub: "Active Fleet", icon: <FiActivity />, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Active Machines", val: stats.activeCount, sub: `${stats.uptime.toFixed(1)}% uptime`, icon: <FiCheckCircle />, color: "text-green-600", bg: "bg-green-50" },
-          { label: "Total Taps (Month)", val: stats.totalTapsMonth.toLocaleString(), sub: `Avg ${stats.avgDailyTaps}/day`, icon: <FiMousePointer />, color: "text-purple-600", bg: "bg-purple-50" },
-          { label: "Total Revenue", val: `₹${(stats.totalRevenue/1000).toFixed(1)}k`, sub: "This Month", icon: <FiDollarSign />, color: "text-yellow-600", bg: "bg-yellow-50" },
-          { label: "Projected Revenue", val: `₹${(stats.projectedRevenue/1000).toFixed(1)}k`, sub: "+15% Growth", icon: <FiTrendingUp />, color: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Total Machines", val: stats.totalMachines, sub: "Active Fleet", icon: <FiActivity /> },
+          { label: "Active Machines", val: stats.activeCount, sub: `${stats.uptime.toFixed(1)}% uptime`, icon: <FiCheckCircle /> },
+          { label: "Total Taps (Month)", val: stats.totalTapsMonth.toLocaleString(), sub: `Avg ${stats.avgDailyTaps}/day`, icon: <FiMousePointer /> },
+          { label: "Total Revenue", val: `₹${(stats.totalRevenue/1000).toFixed(1)}k`, sub: "This Month", icon: <FiDollarSign /> },
+          { label: "Projected Revenue", val: `₹${(stats.projectedRevenue/1000).toFixed(1)}k`, sub: "+15% Growth", icon: <FiTrendingUp /> }
         ].map((item, i) => (
-          <div key={i} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+          <div key={i} className="bg-white p-4 border border-gray-200">
             <div className="flex justify-between items-start">
               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{item.label}</p>
-              <span className={`p-1.5 rounded-lg text-sm ${item.bg} ${item.color}`}>{item.icon}</span>
+              <span className="text-gray-400 text-sm">{item.icon}</span>
             </div>
-            <p className="text-2xl font-bold text-gray-800 mt-2">{item.val}</p>
-            <div className={`mt-2 inline-block px-2 py-0.5 rounded text-[10px] font-bold ${item.bg} ${item.color}`}>
+            <p className="text-2xl font-bold text-gray-800 mt-2 font-mono">{item.val}</p>
+            <div className="mt-1 inline-block px-1.5 py-0.5 bg-gray-50 border border-gray-200 text-[9px] font-bold text-gray-500">
               {item.sub}
             </div>
           </div>
@@ -231,19 +231,19 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-gray-800 text-sm sm:text-base">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2 bg-white p-4 border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wider">
               Daily Tap Trends (Last 7 Days)
             </h3>
-            <span className="text-xs text-blue-500 font-medium">
+            <span className="text-[10px] text-blue-500 font-medium font-mono">
               {stats.monthName}
             </span>
           </div>
 
           {mounted && stats.dailyTrend.length > 0 && stats.dailyTrend.some(d => d.taps > 0) ? (
-            <div className="w-full h-64 sm:h-72">
+            <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={stats.dailyTrend}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -257,46 +257,46 @@ export default function AdminDashboard() {
                     type="monotone"
                     dataKey="taps"
                     stroke="#3b82f6"
-                    strokeWidth={3}
-                    dot={{ r: 4, stroke: '#3b82f6', strokeWidth: 2, fill: '#fff' }}
-                    activeDot={{ r: 6 }}
+                    strokeWidth={2}
+                    dot={{ r: 3, stroke: '#3b82f6', strokeWidth: 1.5, fill: '#fff' }}
+                    activeDot={{ r: 5 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">
+            <div className="h-64 flex items-center justify-center text-gray-400 text-xs">
               No tap data available for this month
             </div>
           )}
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-4 border border-gray-200 flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-gray-800 mb-6 text-sm sm:text-base">Target Progress</h3>
+            <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wider mb-4">Target Progress</h3>
             <div className="space-y-4">
               <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold text-gray-600">
+                <div className="flex justify-between text-xs font-bold text-gray-600 font-mono">
                   <span>Current Revenue</span>
                   <span>₹{(stats.totalRevenue).toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-green-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (stats.totalRevenue / (stats.projectedRevenue || 1)) * 100)}%` }} />
+                <div className="w-full bg-gray-100 h-1.5 overflow-hidden">
+                  <div className="bg-green-500 h-full transition-all duration-500" style={{ width: `${Math.min(100, (stats.totalRevenue / (stats.projectedRevenue || 1)) * 100)}%` }} />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold text-gray-600">
+                <div className="flex justify-between text-xs font-bold text-gray-600 font-mono">
                   <span>Target Progress</span>
                   <span>{Math.min(100, Math.round((stats.totalRevenue / (stats.projectedRevenue || 1)) * 100))}%</span>
                 </div>
-                <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (stats.totalRevenue / (stats.projectedRevenue || 1)) * 100)}%` }} />
+                <div className="w-full bg-gray-100 h-1.5 overflow-hidden">
+                  <div className="bg-blue-600 h-full transition-all duration-500" style={{ width: `${Math.min(100, (stats.totalRevenue / (stats.projectedRevenue || 1)) * 100)}%` }} />
                 </div>
               </div>
             </div>
           </div>
-          <div className="pt-4 border-t border-gray-100 mt-4">
-            <p className="text-[11px] text-gray-500 leading-relaxed">
+          <div className="pt-3 border-t border-gray-200 mt-4">
+            <p className="text-[10px] text-gray-500 leading-relaxed font-semibold">
               Based on current telemetry cycles and user interactions, projected revenue targets are on course to maintain a +15% growth trajectory.
             </p>
           </div>
@@ -305,35 +305,42 @@ export default function AdminDashboard() {
 
       {/* Alerts and Machine Health */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <h3 className="font-bold text-gray-800 text-sm sm:text-base">Registered Machines Overview</h3>
+        <div className="lg:col-span-2 bg-white border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+            <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wider">Registered Machines Overview</h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
+            <table className="w-full text-left border-collapse table-fixed min-w-[650px]">
+              <colgroup>
+                <col className="w-[30%]" />
+                <col className="w-[18%]" />
+                <col className="w-[18%]" />
+                <col className="w-[18%]" />
+                <col className="w-[16%]" />
+              </colgroup>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                  <th className="py-3 px-6">ID / Owner</th>
-                  <th className="py-3 px-6">Taps (Month)</th>
-                  <th className="py-3 px-6">Efficiency</th>
-                  <th className="py-3 px-6">Revenue</th>
-                  <th className="py-3 px-6">Status</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                  <th className="py-2.5 px-4 border-r border-gray-200">ID / Owner</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Taps (Month)</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Efficiency</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Revenue</th>
+                  <th className="py-2.5 px-4 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-200">
                 {stats.unitList.length > 0 ? (
                   stats.unitList.map((m, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-4 px-6">
-                        <p className="font-bold text-gray-800">{m.id}</p>
-                        <p className="text-xs text-gray-400">{m.owner}</p>
+                    <tr key={idx} className="hover:bg-gray-50/50 transition-colors text-xs">
+                      <td className="py-2.5 px-4 border-r border-gray-200">
+                        <p className="font-bold text-gray-800 font-mono">{m.id}</p>
+                        <p className="text-[10px] text-gray-400 font-medium">{m.owner}</p>
                       </td>
-                      <td className="py-4 px-6 font-medium">{m.monthTaps}</td>
-                      <td className="py-4 px-6 font-medium">{m.efficiency}</td>
-                      <td className="py-4 px-6 font-semibold text-gray-900">₹{m.revenue.toLocaleString()}</td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex px-2 py-1 text-[10px] font-bold rounded-lg uppercase ${
-                          m.status === 'Active' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{m.monthTaps}</td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{m.efficiency}</td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900">₹{m.revenue.toLocaleString()}</td>
+                      <td className="py-2.5 px-4 text-center">
+                        <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
+                          m.status === 'Active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                         }`}>
                           {m.status}
                         </span>
@@ -352,24 +359,24 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-4 text-sm sm:text-base">System Alerts</h3>
-          <div className="space-y-3">
+        <div className="bg-white p-4 border border-gray-200">
+          <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wider mb-4">System Alerts</h3>
+          <div className="space-y-2.5">
             {stats.alerts.length > 0 ? (
               stats.alerts.slice(0, 5).map((a, i) => (
-                <div key={i} className="flex gap-3 p-3 bg-yellow-50 border border-yellow-100 rounded-xl text-yellow-800 text-xs">
-                  <FiAlertCircle className="text-base shrink-0 mt-0.5" />
+                <div key={i} className="flex gap-2.5 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-xs">
+                  <FiAlertCircle className="text-sm shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold">Machine {a.id.slice(-6)} Idle</p>
+                    <p className="font-semibold font-mono">Machine {a.id.slice(-6)} Idle</p>
                     <p className="text-yellow-600 mt-0.5">{a.message}</p>
                   </div>
                 </div>
               ))
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <FiCheckCircle className="text-3xl text-green-500 mb-2" />
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">All Systems Operational</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">No network warning signals active.</p>
+                <FiCheckCircle className="text-2xl text-green-500 mb-2" />
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">All Systems Operational</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">No network warning signals active.</p>
               </div>
             )}
           </div>

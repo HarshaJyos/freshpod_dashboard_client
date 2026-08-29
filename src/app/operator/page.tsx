@@ -181,145 +181,133 @@ export default function OperatorDashboard() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Helmet Disinfection Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.name || 'Operator'}</p>
-          <p className="text-xs text-blue-600 font-semibold mt-1 flex items-center gap-1">
-            <FiShield /> Manage and monitor local physical helmet hygiene disinfection
-          </p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Kiosk Disinfection Dashboard</h1>
+          <p className="text-xs text-gray-500 mt-1">Operator: {user?.name || 'Staff'}</p>
         </div>
         <button 
           onClick={fetchData}
-          className="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl shadow-sm flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+          className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <FiRefreshCw /> Refresh status
+          <FiRefreshCw className="text-[10px]" /> Refresh Status
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Kiosks</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">{stats.totalMachines}</p>
-            <p className="text-[10px] text-green-600 font-semibold mt-1">{stats.activeMachines} active status</p>
+      {/* Stats Cards - Flat PowerBI Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: "Total Kiosks", val: stats.totalMachines, sub: `${stats.activeMachines} Active`, icon: <FiShield /> },
+          { label: "Cycles Today", val: stats.totalCyclesToday, sub: "Completed runs", icon: <FiZap /> },
+          { label: "Today's Revenue", val: `₹${stats.totalRevenueToday}`, sub: "Kiosk collections", icon: <FiDollarSign /> },
+          { label: "Utilization Rate", val: `${stats.totalMachines > 0 ? Math.round((stats.activeMachines / stats.totalMachines) * 100) : 0}%`, sub: "Operational yield", icon: <FiTrendingUp /> }
+        ].map((item, idx) => (
+          <div key={idx} className="bg-white border border-gray-200 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{item.label}</p>
+              <p className="text-xl font-bold text-gray-800 mt-1 font-mono">{item.val}</p>
+              <p className="text-[9px] text-gray-400 font-semibold mt-0.5">{item.sub}</p>
+            </div>
+            <span className="text-gray-400 text-lg">{item.icon}</span>
           </div>
-          <span className="p-3 rounded-xl bg-blue-50 text-blue-600 text-xl"><FiShield /></span>
-        </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Cycles Completed Today</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">{stats.totalCyclesToday}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Disinfections logged</p>
-          </div>
-          <span className="p-3 rounded-xl bg-green-50 text-green-600 text-xl"><FiZap /></span>
-        </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider font-mono">Today's Revenue</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">₹{stats.totalRevenueToday}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Kiosk checkouts</p>
-          </div>
-          <span className="p-3 rounded-xl bg-purple-50 text-purple-600 text-xl"><FiDollarSign /></span>
-        </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Utilization Rate</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">
-              {stats.totalMachines > 0 ? Math.round((stats.activeMachines / stats.totalMachines) * 100) : 0}%
-            </p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Operational yield</p>
-          </div>
-          <span className="p-3 rounded-xl bg-orange-50 text-orange-600 text-xl"><FiTrendingUp /></span>
-        </div>
+        ))}
       </div>
 
-      {/* Grid of machines */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {machines.map((machine) => {
-          const isRunning = activeSessions[machine._id]?.running;
-          const startTime = activeSessions[machine._id]?.startTime;
-          const progress = startTime ? getProgressPercentage(startTime) : 0;
-          const countdownEnd = countdowns[machine._id];
+      {/* Grid of machines in Spreadsheet format */}
+      <div className="bg-white border border-gray-200 overflow-hidden">
+        <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+          <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+            <FiShield className="text-gray-500" /> Kiosk Network Operations
+          </h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse table-fixed min-w-[800px]">
+            <colgroup>
+              <col className="w-[15%]" />
+              <col className="w-[20%]" />
+              <col className="w-[10%]" />
+              <col className="w-[12%]" />
+              <col className="w-[12%]" />
+              <col className="w-[16%]" />
+              <col className="w-[15%]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                <th className="py-2.5 px-4 border-r border-gray-200">Machine ID</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-center">Status</th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cycles Today</th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cost / Cycle</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Last Active</th>
+                <th className="py-2.5 px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {machines.length > 0 ? (
+                machines.map((machine) => {
+                  const isRunning = activeSessions[machine._id]?.running;
+                  const startTime = activeSessions[machine._id]?.startTime;
+                  const progress = startTime ? getProgressPercentage(startTime) : 0;
+                  const countdownEnd = countdowns[machine._id];
 
-          return (
-            <div 
-              key={machine._id}
-              className={`bg-white rounded-2xl border transition-all overflow-hidden flex flex-col justify-between p-5 ${
-                isRunning ? 'border-green-300 shadow-lg shadow-green-50' : 'border-gray-100 shadow-sm'
-              }`}
-            >
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-base font-mono flex items-center gap-1.5">
-                      <FiShield className={isRunning ? 'text-green-500' : 'text-gray-400'} /> {machine.machineId}
-                    </h3>
-                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                      <FiMapPin /> {machine.location}
-                    </p>
-                  </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                    isRunning ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-600'
-                  }`}>
-                    {isRunning ? 'Disinfecting' : 'Ready'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                    <p className="text-[10px] text-gray-400 font-semibold">Cycles Today</p>
-                    <p className="text-base font-bold text-gray-800 mt-0.5">{machine.todaysCycles || 0}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                    <p className="text-[10px] text-gray-400 font-semibold">Cost / Cycle</p>
-                    <p className="text-base font-bold text-blue-600 mt-0.5">₹{machine.costPerCycle || 0}</p>
-                  </div>
-                </div>
-
-                {isRunning && countdownEnd && (
-                  <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 mb-4 text-white">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Remaining Time</span>
-                      <span className="text-base font-mono font-bold">{formatCountdown(countdownEnd)}</span>
-                    </div>
-                    <div className="w-full bg-white/20 rounded-full h-1.5 mt-3">
-                      <div className="bg-white rounded-full h-1.5 transition-all duration-1000" style={{ width: `${progress}%` }} />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                {isRunning ? (
-                  <button disabled className="w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed">
-                    <FiCheckCircle /> Disinfection Running...
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => { setSelectedMachine(machine); setShowStartModal(true); }}
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <FiPlay /> Start Disinfection
-                  </button>
-                )}
-                
-                <div className="mt-3 pt-3 border-t border-gray-50 flex items-center gap-1.5 text-[9px] text-gray-400 font-semibold">
-                  <FiClock />
-                  <span>Last Cycle: {machine.lastActive ? new Date(machine.lastActive).toLocaleString() : 'Never'}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {machines.length === 0 && (
-          <div className="col-span-full py-16 text-center bg-white rounded-2xl border border-gray-100">
-            <FiShield className="text-4xl text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No kiosks assigned to your operator account.</p>
-          </div>
-        )}
+                  return (
+                    <tr key={machine._id} className="hover:bg-gray-50/50 transition-colors text-xs">
+                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-900">
+                        {machine.machineId}
+                      </td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">
+                        {machine.location}
+                      </td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-center">
+                        <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
+                          isRunning ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-50 text-gray-600 border border-gray-200'
+                        }`}>
+                          {isRunning ? 'Disinfecting' : 'Ready'}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">
+                        {machine.todaysCycles || 0}
+                      </td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono text-blue-600 font-semibold">
+                        ₹{machine.costPerCycle || 0}
+                      </td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-gray-500 font-mono text-[10px]">
+                        {machine.lastActive ? new Date(machine.lastActive).toLocaleString() : 'Never'}
+                      </td>
+                      <td className="py-2.5 px-4">
+                        {isRunning ? (
+                          <div className="space-y-1">
+                            <div className="w-full bg-gray-100 h-1.5 overflow-hidden">
+                              <div className="bg-green-500 h-full transition-all duration-1000" style={{ width: `${progress}%` }} />
+                            </div>
+                            <div className="flex justify-between text-[9px] font-mono text-green-700">
+                              <span>DISINFECTING</span>
+                              <span>{countdownEnd ? formatCountdown(countdownEnd) : ''}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => { setSelectedMachine(machine); setShowStartModal(true); }}
+                            className="w-full py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                          >
+                            <FiPlay className="text-[9px]" /> Start Disinfect
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-gray-400">
+                    <FiShield className="text-3xl text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs">No kiosks assigned to your operator account.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Start Modal */}

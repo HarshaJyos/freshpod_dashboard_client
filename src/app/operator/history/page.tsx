@@ -81,23 +81,23 @@ export default function OperatorHistory() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Disinfection Logs History</h1>
-        <p className="text-gray-500 text-sm mt-1">Audit cycles completed, duration logs, and revenue metrics per node</p>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Disinfection Logs History</h1>
+        <p className="text-gray-500 text-xs mt-1">Audit cycles completed, duration logs, and revenue metrics per node</p>
       </div>
 
-      {/* Machine Selector */}
+      {/* Machine Selector - Flat PowerBI Style */}
       {machines.length > 0 && (
-        <div className="mb-6 bg-white p-4 border border-gray-100 shadow-sm rounded-2xl max-w-md">
-          <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Select supervising Node</label>
+        <div className="mb-4 bg-white p-3 border border-gray-200 max-w-xs">
+          <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Select supervising Node</label>
           <select
             value={selectedMachine || ''}
             onChange={(e) => setSelectedMachine(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-100 bg-white font-semibold text-gray-700 cursor-pointer"
+            className="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:outline-none bg-white font-semibold text-gray-700 cursor-pointer"
           >
             {machines.map((machine) => (
               <option key={machine._id} value={machine._id}>
-                {machine.machineId} - {machine.location}
+                {machine.machineId} ({machine.location})
               </option>
             ))}
           </select>
@@ -110,39 +110,46 @@ export default function OperatorHistory() {
           <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-200 border-t-blue-500"></div>
         </div>
       ) : history.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
-          <FiClock className="text-4xl text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-400 text-sm">No disinfection cycles recorded on this node.</p>
+        <div className="bg-white border border-gray-200 p-12 text-center">
+          <FiClock className="text-4xl text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400 text-xs">No disinfection cycles recorded on this node.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
+            <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
+              <colgroup>
+                <col className="w-[20%]" />
+                <col className="w-[25%]" />
+                <col className="w-[15%]" />
+                <col className="w-[20%]" />
+                <col className="w-[20%]" />
+              </colgroup>
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                  <th className="px-6 py-4">Logged Date</th>
-                  <th className="px-6 py-4">Synced Time</th>
-                  <th className="px-6 py-4">Cycles Completed</th>
-                  <th className="px-6 py-4">Cycle Revenue</th>
-                  <th className="px-6 py-4">Status</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                  <th className="py-2.5 px-4 border-r border-gray-200">Logged Date</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200">Synced Time</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cycles Completed</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Cycle Revenue</th>
+                  <th className="py-2.5 px-4 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-200">
                 {history.map((record, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-gray-800">{record.date}</td>
-                    <td className="px-6 py-4 text-gray-500 text-xs font-semibold">
+                  <tr key={idx} className="hover:bg-gray-50/50 transition-colors text-xs">
+                    <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-800">{record.date}</td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-500 font-mono text-[11px]">
                       {record.time ? new Date(record.time).toLocaleTimeString() : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 font-bold text-gray-800">{record.cycles}</td>
-                    <td className="px-6 py-4 font-semibold text-gray-900">₹{(record.revenue || 0).toFixed(2)}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-semibold text-gray-900">{record.cycles}</td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono text-gray-900">₹{(record.revenue || 0).toFixed(2)}</td>
+                    <td className="py-2.5 px-4 text-center">
+                      <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
                         record.status === 'completed' || record.action === 'completed'
-                          ? 'bg-green-50 text-green-700' 
+                          ? 'bg-green-50 text-green-700 border border-green-200' 
                           : record.status === 'failed' || record.action === 'failed'
-                          ? 'bg-red-50 text-red-700' 
-                          : 'bg-yellow-50 text-yellow-700'
+                          ? 'bg-red-50 text-red-700 border border-red-200' 
+                          : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                       }`}>
                         {record.status || record.action || 'running'}
                       </span>

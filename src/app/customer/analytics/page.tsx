@@ -157,48 +157,48 @@ export default function CustomerAnalytics() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Telemetry Analytics</h1>
-          <p className="text-sm text-gray-500 mt-1">Audit telemetry logs, profit statements, and kiosk distributions</p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Telemetry Analytics</h1>
+          <p className="text-xs text-gray-500 mt-1">Audit telemetry logs, profit statements, and kiosk distributions</p>
         </div>
-        <div className="bg-white border border-gray-200 px-4 py-2 rounded-xl text-sm flex items-center gap-2 font-medium shadow-sm">
+        <div className="bg-white border border-gray-200 px-3 py-1.5 rounded text-xs flex items-center gap-2 font-medium">
           <FiCalendar /> {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-800 text-sm mb-6">
-          <FiAlertCircle className="shrink-0" />
+        <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs mb-4 flex items-center gap-2">
+          <FiAlertCircle />
           <p>{error}</p>
         </div>
       )}
 
       {stats && (
         <>
-          {/* Key Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+          {/* Key Cards - Flat PowerBI Style */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+            <div className="bg-white p-4 border border-gray-200">
               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Taps</p>
-              <p className="text-2xl font-bold text-gray-800 mt-1">{stats.totalTaps.toLocaleString()}</p>
+              <p className="text-xl font-bold text-gray-800 mt-1 font-mono">{stats.totalTaps.toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <div className="bg-white p-4 border border-gray-200">
               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Revenue</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">₹{Math.round(stats.totalRevenue).toLocaleString()}</p>
+              <p className="text-xl font-bold text-green-600 mt-1 font-mono">₹{Math.round(stats.totalRevenue).toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Monthly Expenses</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">₹{Math.round(stats.totalExpenses).toLocaleString()}</p>
+            <div className="bg-white p-4 border border-gray-200">
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Monthly Exp.</p>
+              <p className="text-xl font-bold text-red-600 mt-1 font-mono">₹{Math.round(stats.totalExpenses).toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <div className="bg-white p-4 border border-gray-200">
               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Net Profit</p>
-              <p className="text-2xl font-bold text-blue-600 mt-1">₹{Math.round(stats.netProfit).toLocaleString()}</p>
+              <p className="text-xl font-bold text-blue-600 mt-1 font-mono">₹{Math.round(stats.netProfit).toLocaleString()}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">ROI Conversion</p>
-              <p className="text-2xl font-bold text-indigo-600 mt-1">{stats.conversionRate.toFixed(1)}%</p>
+            <div className="bg-white p-4 border border-gray-200">
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">ROI Conv.</p>
+              <p className="text-xl font-bold text-indigo-600 mt-1 font-mono">{stats.conversionRate.toFixed(1)}%</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Kiosks Managed</p>
-              <p className="text-2xl font-bold text-purple-600 mt-1">{machines.length}</p>
+            <div className="bg-white p-4 border border-gray-200">
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Kiosks</p>
+              <p className="text-xl font-bold text-purple-600 mt-1 font-mono">{machines.length}</p>
             </div>
           </div>
 
@@ -206,8 +206,8 @@ export default function CustomerAnalytics() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Kiosks Profit Bar */}
             {mounted && (
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm sm:text-base mb-6">
+              <div className="lg:col-span-2 bg-white border border-gray-200 p-4">
+                <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
                   <FiBarChart2 className="text-blue-600" /> Kiosk Revenue breakdown
                 </h3>
                 <div className="w-full h-80">
@@ -217,28 +217,28 @@ export default function CustomerAnalytics() {
                       <XAxis dataKey="machineId" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
                       <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} />
                       <Tooltip formatter={(value: any) => [`₹${Number(value || 0).toLocaleString()}`, 'Revenue']} />
-                      <Bar dataKey="revenue" fill="#3b82f6" name="Revenue" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="revenue" fill="#3b82f6" name="Revenue" radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
             )}
 
-            {/* Performance Insights */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-              <h3 className="font-bold text-gray-800 text-sm sm:text-base">Operations Insights</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-blue-50/50 border border-blue-100/50 rounded-xl space-y-1">
-                  <p className="text-xs text-gray-400 font-bold uppercase">Average Profit per Kiosk</p>
-                  <p className="text-xl font-bold text-blue-700">₹{Math.round(stats.avgProfitPerKiosk).toLocaleString()}</p>
+            {/* Performance Insights - Flat PowerBI Style */}
+            <div className="bg-white border border-gray-200 p-4 space-y-4">
+              <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Operations Insights</h3>
+              <div className="space-y-3">
+                <div className="p-3 bg-gray-50 border border-gray-200 space-y-1">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">Average Profit per Kiosk</p>
+                  <p className="text-lg font-bold text-blue-700 font-mono">₹{Math.round(stats.avgProfitPerKiosk).toLocaleString()}</p>
                 </div>
-                <div className="p-4 bg-green-50/50 border border-green-100/50 rounded-xl space-y-1">
-                  <p className="text-xs text-gray-400 font-bold uppercase">Hardware cost conversion</p>
-                  <p className="text-xl font-bold text-green-700">{stats.conversionRate.toFixed(1)}% Yield</p>
+                <div className="p-3 bg-gray-50 border border-gray-200 space-y-1">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">Hardware cost conversion</p>
+                  <p className="text-lg font-bold text-green-700 font-mono">{stats.conversionRate.toFixed(1)}% Yield</p>
                 </div>
-                <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl flex items-center gap-3">
-                  <FiTarget className="text-blue-500 text-lg" />
-                  <div className="text-xs">
+                <div className="p-3 bg-gray-50 border border-gray-200 flex items-center gap-2">
+                  <FiTarget className="text-blue-500 text-sm shrink-0" />
+                  <div className="text-[11px]">
                     <p className="font-bold text-gray-700">Audit targets</p>
                     <p className="text-gray-500 mt-0.5">Optimize cost per tap configurations in settings to improve conversion yields.</p>
                   </div>
@@ -247,30 +247,37 @@ export default function CustomerAnalytics() {
             </div>
           </div>
 
-          {/* Machine detailed summary list */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-8">
-            <div className="p-5 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="font-bold text-gray-800 text-sm sm:text-base">Kiosk Margin Audit Table</h3>
+          {/* Machine detailed summary list in Excel table format */}
+          <div className="bg-white border border-gray-200 overflow-hidden mt-6">
+            <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+              <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Kiosk Margin Audit Table</h3>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
+              <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
+                <colgroup>
+                  <col className="w-[20%]" />
+                  <col className="w-[15%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[25%]" />
+                </colgroup>
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                    <th className="px-6 py-4">Kiosk ID</th>
-                    <th className="px-6 py-4">Taps</th>
-                    <th className="px-6 py-4">Gross Revenue</th>
-                    <th className="px-6 py-4">Net Profit</th>
-                    <th className="px-6 py-4">Location</th>
+                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                    <th className="py-2.5 px-4 border-r border-gray-200">Kiosk ID</th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 text-right">Taps</th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 text-right">Gross Revenue</th>
+                    <th className="py-2.5 px-4 border-r border-gray-200 text-right">Net Profit</th>
+                    <th className="py-2.5 px-4">Location</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-200">
                   {stats.processedMachines.map((m) => (
-                    <tr key={m.machineId} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-gray-800 font-mono">{m.machineId}</td>
-                      <td className="px-6 py-4 text-gray-600 font-semibold">{m.taps}</td>
-                      <td className="px-6 py-4 font-semibold text-green-600">₹{Math.round(m.revenue).toLocaleString()}</td>
-                      <td className={`px-6 py-4 font-bold ${m.netProfit >= 0 ? 'text-blue-600' : 'text-red-500'}`}>₹{Math.round(m.netProfit).toLocaleString()}</td>
-                      <td className="px-6 py-4 text-xs text-gray-500">{m.location}</td>
+                    <tr key={m.machineId} className="hover:bg-gray-50/50 transition-colors text-xs">
+                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono font-bold text-gray-800">{m.machineId}</td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{m.taps}</td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono text-green-600 font-semibold">₹{Math.round(m.revenue).toLocaleString()}</td>
+                      <td className={`py-2.5 px-4 border-r border-gray-200 text-right font-mono font-bold ${m.netProfit >= 0 ? 'text-blue-600' : 'text-red-500'}`}>₹{Math.round(m.netProfit).toLocaleString()}</td>
+                      <td className="py-2.5 px-4 text-gray-600">{m.location}</td>
                     </tr>
                   ))}
                 </tbody>

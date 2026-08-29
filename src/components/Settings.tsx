@@ -112,27 +112,27 @@ export default function AccountSettings() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Portal Configurations</h1>
-        <p className="text-gray-500 text-sm mt-1">Configure profile data, API key access credentials, and security parameters</p>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Portal Configurations</h1>
+        <p className="text-gray-500 text-xs mt-1">Configure profile data, API key access credentials, and security parameters</p>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mb-6 overflow-hidden">
-        <div className="flex border-b border-gray-100 overflow-x-auto bg-gray-50/50">
+      {/* Tabs - Flat Style */}
+      <div className="bg-white border border-gray-200 overflow-hidden mb-6">
+        <div className="flex border-b border-gray-200 overflow-x-auto bg-gray-50">
           {visibleTabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-4 text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                className={`px-5 py-3 text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === tab.id 
                     ? 'text-blue-600 border-b-2 border-blue-600 bg-white' 
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100/30'
                 }`}
               >
-                <Icon size={18} />
+                <Icon size={14} />
                 {tab.label}
               </button>
             );
@@ -143,65 +143,65 @@ export default function AccountSettings() {
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <form onSubmit={handleProfileUpdate} className="max-w-2xl space-y-4">
-              <h2 className="text-base font-bold text-gray-900 mb-4">Profile Information</h2>
+              <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Profile Information</h2>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Full Name</label>
                 <input
                   type="text"
                   value={profileData.name}
                   onChange={(e) => setProfileData({...profileData, name: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address (Read-only)</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Email Address (Read-only)</label>
                 <input
                   type="email"
                   disabled
                   value={profileData.email}
-                  className="w-full bg-gray-50 border border-gray-200 text-gray-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none"
+                  className="w-full bg-gray-50 border border-gray-200 text-gray-400 rounded px-3 py-1.5 text-xs focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone Number</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Phone Number</label>
                 <input
                   type="text"
                   value={profileData.phoneNumber}
                   onChange={(e) => setProfileData({...profileData, phoneNumber: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Region / Location</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Region / Location</label>
                 <input
                   type="text"
                   value={profileData.location}
                   onChange={(e) => setProfileData({...profileData, location: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                 />
               </div>
 
               {(userRole === 'dealership' || userRole === 'customer') && (
-                <div className="pt-4 border-t border-gray-100 mt-6 space-y-4">
-                  <h3 className="font-bold text-xs text-gray-400 uppercase tracking-wider">Razorpay Custom Credentials</h3>
+                <div className="pt-4 border-t border-gray-200 mt-6 space-y-4">
+                  <h3 className="font-bold text-[10px] text-gray-400 uppercase tracking-wider">Razorpay Custom Credentials</h3>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Razorpay Key ID</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Razorpay Key ID</label>
                     <input
                       type="text"
                       value={profileData.razorpayKeyId}
                       onChange={(e) => setProfileData({...profileData, razorpayKeyId: e.target.value})}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                      className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400 font-mono"
                       placeholder="rzp_live_..."
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Razorpay Secret Key</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Razorpay Secret Key</label>
                     <input
                       type="password"
                       value={profileData.razorpayKeySecret}
                       onChange={(e) => setProfileData({...profileData, razorpayKeySecret: e.target.value})}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                      className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                       placeholder="••••••••"
                     />
                   </div>
@@ -211,9 +211,9 @@ export default function AccountSettings() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-5 py-3 rounded-xl transition-all shadow-sm shadow-blue-100 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <FiSave /> {loading ? 'Saving Changes...' : 'Save Profile Settings'}
+                <FiSave size={12} /> {loading ? 'Saving Changes...' : 'Save Profile Settings'}
               </button>
             </form>
           )}
@@ -221,34 +221,34 @@ export default function AccountSettings() {
           {/* Security Tab */}
           {activeTab === 'security' && (
             <form onSubmit={handlePasswordChange} className="max-w-2xl space-y-4">
-              <h2 className="text-base font-bold text-gray-900 mb-4">Security Settings</h2>
+              <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Security Settings</h2>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Current Password *</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Current Password *</label>
                 <input
                   type="password"
                   value={securityData.currentPassword}
                   onChange={(e) => setSecurityData({...securityData, currentPassword: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">New Password *</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">New Password *</label>
                 <input
                   type="password"
                   value={securityData.newPassword}
                   onChange={(e) => setSecurityData({...securityData, newPassword: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Confirm New Password *</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Confirm New Password *</label>
                 <input
                   type="password"
                   value={securityData.confirmPassword}
                   onChange={(e) => setSecurityData({...securityData, confirmPassword: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-400"
                   required
                 />
               </div>
@@ -256,9 +256,9 @@ export default function AccountSettings() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-5 py-3 rounded-xl transition-all shadow-sm shadow-blue-100 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <FiLock /> {loading ? 'Updating Password...' : 'Update Password'}
+                <FiLock size={12} /> {loading ? 'Updating Password...' : 'Update Password'}
               </button>
             </form>
           )}

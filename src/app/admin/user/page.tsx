@@ -268,29 +268,29 @@ export default function UserDirective() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">User Directory & Directives</h1>
-          <p className="text-gray-500 text-sm mt-1">Provision tenant users, configure merchant IDs, and assign hardware clusters</p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">User Directory & Directives</h1>
+          <p className="text-gray-500 text-xs mt-1">Provision tenant users, configure merchant IDs, and assign hardware clusters</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowAddModal(true); }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700 flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <FiUserPlus /> Add User
+          <FiUserPlus size={12} /> Add User
         </button>
       </div>
 
-      {/* Control Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
+      {/* Control Bar - Flat PowerBI Style */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><FiSearch /></span>
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"><FiSearch size={14} /></span>
           <input
             type="text"
             placeholder="Search by name, email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:outline-none shadow-sm"
+            className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -298,7 +298,7 @@ export default function UserDirective() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-white border border-gray-200 px-3 py-2 rounded-xl text-sm focus:outline-none shadow-sm cursor-pointer font-medium"
+            className="bg-white border border-gray-200 px-2.5 py-1.5 rounded text-xs focus:outline-none cursor-pointer font-semibold text-gray-600"
           >
             <option value="all">All Roles</option>
             <option value="admin">Admin</option>
@@ -309,76 +309,83 @@ export default function UserDirective() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Table - Excel-Style High-Density spreadsheet */}
+      <div className="bg-white border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse table-fixed min-w-[800px]">
+            <colgroup>
+              <col className="w-[30%]" />
+              <col className="w-[15%]" />
+              <col className="w-[20%]" />
+              <col className="w-[23%]" />
+              <col className="w-[12%]" />
+            </colgroup>
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                <th className="py-4 px-6">User / Contact</th>
-                <th className="py-4 px-6">Role</th>
-                <th className="py-4 px-6">Location</th>
-                <th className="py-4 px-6">Assigned Machines</th>
-                <th className="py-4 px-6">Actions</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                <th className="py-2.5 px-4 border-r border-gray-200">User / Contact</th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-center">Role</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Assigned Machines</th>
+                <th className="py-2.5 px-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-200">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((u) => (
-                  <tr key={u._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                  <tr key={u._id} className="hover:bg-gray-50/50 transition-colors text-xs">
+                    <td className="py-2.5 px-4 border-r border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold text-gray-800">{u.name}</p>
-                          <p className="text-xs text-gray-400">{u.email}</p>
+                          <p className="text-[10px] text-gray-400 font-mono">{u.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        u.role === 'admin' ? 'bg-red-50 text-red-600' :
-                        u.role === 'dealership' ? 'bg-indigo-50 text-indigo-600' :
-                        u.role === 'customer' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-center">
+                      <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
+                        u.role === 'admin' ? 'bg-red-50 text-red-700 border border-red-200' :
+                        u.role === 'dealership' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
+                        u.role === 'customer' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                       }`}>
                         {u.role}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-gray-600">
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">
                       {u.location ? (
-                        <span className="flex items-center gap-1.5"><FiMapPin className="text-gray-400" /> {u.location}</span>
+                        <span className="flex items-center gap-1"><FiMapPin size={10} className="text-gray-400" /> {u.location}</span>
                       ) : 'N/A'}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-2.5 px-4 border-r border-gray-200">
                       <div className="flex flex-wrap gap-1">
                         {u.assignedMachines && u.assignedMachines.length > 0 ? (
                           u.assignedMachines.map((m: any, i) => (
-                            <span key={i} className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-[10px] font-semibold px-2 py-0.5 rounded">
-                              <FiCpu size={10} /> {typeof m === 'object' ? m.machineId : m}
+                            <span key={i} className="inline-flex items-center gap-1 bg-gray-50 border border-gray-200 text-[9px] font-semibold px-1.5 py-0.5 rounded font-mono">
+                              <FiCpu size={9} className="text-gray-400" /> {typeof m === 'object' ? m.machineId : m}
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-gray-400 font-medium">No assigned machines</span>
+                          <span className="text-[10px] text-gray-400">No assigned machines</span>
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="flex gap-2">
+                    <td className="py-2.5 px-4 text-center">
+                      <div className="flex gap-1.5 justify-center">
                         <button
                           onClick={() => openEditModal(u)}
-                          className="p-2 border border-gray-100 hover:bg-gray-50 text-blue-600 rounded-lg cursor-pointer"
+                          className="p-1 border border-gray-200 hover:bg-gray-50 text-blue-600 rounded cursor-pointer"
                           title="Edit User"
                         >
-                          <FiEdit2 />
+                          <FiEdit2 size={11} />
                         </button>
                         <button
                           onClick={() => handleDeleteUser(u._id)}
-                          className="p-2 border border-red-50 hover:bg-red-50 text-red-500 rounded-lg cursor-pointer"
+                          className="p-1 border border-red-200 hover:bg-red-50 text-red-500 rounded cursor-pointer"
                           title="Delete User"
                         >
-                          <FiTrash2 />
+                          <FiTrash2 size={11} />
                         </button>
                       </div>
                     </td>
@@ -386,7 +393,7 @@ export default function UserDirective() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-400">
+                  <td colSpan={5} className="py-12 text-center text-gray-400">
                     No users registered in the network
                   </td>
                 </tr>

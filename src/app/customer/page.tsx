@@ -258,94 +258,83 @@ export default function CustomerDashboard() {
   return (
     <div className="w-full p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Customer Fleet Overview</h1>
-          <p className="text-gray-500 text-sm mt-1">Audit assigned kiosks and manage operator staff credentials</p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Customer Fleet Overview</h1>
+          <p className="text-xs text-gray-500 mt-1">Audit assigned kiosks and manage operator staff credentials</p>
         </div>
-        <div className="bg-white border border-gray-200 px-4 py-2 rounded-xl text-sm flex items-center gap-2 font-medium shadow-sm">
+        <div className="bg-white border border-gray-200 px-3 py-1.5 rounded text-xs flex items-center gap-2 font-medium">
           <FiCalendar /> {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Kiosks</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">{machinesArray.length}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Dispenser count</p>
+      {/* Stats Cards - Flat PowerBI Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: "Total Kiosks", val: machinesArray.length, sub: "Dispenser count", icon: <FiCpu /> },
+          { label: "Total Taps Logs", val: totalTaps.toLocaleString(), sub: "Telemetry cycles", icon: <FiActivity /> },
+          { label: "Turnover Yield", val: `₹${totalRevenue.toLocaleString()}`, sub: "Dispenser revenue", icon: <FiDollarSign /> },
+          { label: "Field Operators", val: operators.length, sub: "Allocated staff profiles", icon: <FiUsers /> }
+        ].map((item, idx) => (
+          <div key={idx} className="bg-white border border-gray-200 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{item.label}</p>
+              <p className="text-xl font-bold text-gray-800 mt-1 font-mono">{item.val}</p>
+              <p className="text-[9px] text-gray-400 font-semibold mt-0.5">{item.sub}</p>
+            </div>
+            <span className="text-gray-400 text-lg">{item.icon}</span>
           </div>
-          <span className="p-3 rounded-xl bg-blue-50 text-blue-600 text-xl"><FiCpu /></span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Taps logs</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">{totalTaps.toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Telemetry interactions</p>
-          </div>
-          <span className="p-3 rounded-xl bg-purple-50 text-purple-600 text-xl"><FiActivity /></span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Turnover Yield</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">₹{(totalRevenue).toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Dispenser revenue</p>
-          </div>
-          <span className="p-3 rounded-xl bg-green-50 text-green-600 text-xl"><FiDollarSign /></span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Field Operators</p>
-            <p className="text-2xl font-bold text-orange-600 mt-1">{operators.length}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1">Allocated staff profiles</p>
-          </div>
-          <span className="p-3 rounded-xl bg-orange-50 text-orange-600 text-xl"><FiUsers /></span>
-        </div>
+        ))}
       </div>
 
       {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Kiosks List */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h3 className="font-bold text-gray-800 text-sm sm:text-base">Kiosks Telemetry Status</h3>
+        {/* Kiosks List in Spreadsheet Format */}
+        <div className="lg:col-span-2 bg-white border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Kiosks Telemetry Status</h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
+            <table className="w-full text-left border-collapse table-fixed min-w-[650px]">
+              <colgroup>
+                <col className="w-[20%]" />
+                <col className="w-[30%]" />
+                <col className="w-[25%]" />
+                <col className="w-[25%]" />
+              </colgroup>
               <thead>
-                <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                  <th className="py-4 px-6">Kiosk Node</th>
-                  <th className="py-4 px-6">Location</th>
-                  <th className="py-4 px-6">Taps (Yield)</th>
-                  <th className="py-4 px-6">Settings</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                  <th className="py-2.5 px-4 border-r border-gray-200">Kiosk Node</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200">Location</th>
+                  <th className="py-2.5 px-4 border-r border-gray-200 text-right">Taps (Yield)</th>
+                  <th className="py-2.5 px-4 text-center">Settings</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-200">
                 {machinesArray.map((m: any) => (
-                  <tr key={m._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-6">
+                  <tr key={m._id} className="hover:bg-gray-50/50 transition-colors text-xs">
+                    <td className="py-2.5 px-4 border-r border-gray-200">
                       <p className="font-bold text-gray-800 font-mono">{m.machineId}</p>
-                      <span className={`inline-flex px-2 py-0.5 mt-1 rounded text-[8px] font-bold uppercase ${
-                        m.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+                      <span className={`inline-flex px-1.5 py-0.5 mt-1 rounded text-[8px] font-bold uppercase ${
+                        m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                       }`}>{m.status}</span>
                     </td>
-                    <td className="py-4 px-6 text-gray-600">{m.location}</td>
-                    <td className="py-4 px-6">
-                      <p className="font-semibold text-gray-900">{m.totalTaps || 0} taps</p>
-                      <p className="text-xs text-gray-400">₹{((m.totalRevenue !== undefined ? m.totalRevenue : (m.totalTaps || 0) * (m.costPerTap || 70.00))).toLocaleString()}</p>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-gray-600">{m.location}</td>
+                    <td className="py-2.5 px-4 border-r border-gray-200 text-right">
+                      <p className="font-semibold text-gray-900 font-mono">{m.totalTaps || 0} taps</p>
+                      <p className="text-[10px] text-gray-400 font-mono">₹{((m.totalRevenue !== undefined ? m.totalRevenue : (m.totalTaps || 0) * (m.costPerTap || 70.00))).toLocaleString()}</p>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="flex gap-2">
+                    <td className="py-2.5 px-4 text-center">
+                      <div className="flex gap-1.5 justify-center">
                         <button 
                           onClick={() => openSettingsModal(m)}
-                          className="px-2.5 py-1.5 border border-gray-100 hover:bg-gray-50 text-blue-600 rounded-lg text-xs font-bold cursor-pointer"
+                          className="px-2 py-1 border border-gray-200 hover:bg-gray-50 text-blue-600 rounded text-[10px] font-bold cursor-pointer"
                         >
                           Settings
                         </button>
                         <button 
                           onClick={() => openQRModal(m)}
-                          className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-bold cursor-pointer"
+                          className="px-2 py-1 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-pointer"
                         >
                           QR Config
                         </button>
@@ -363,40 +352,40 @@ export default function CustomerDashboard() {
           </div>
         </div>
 
-        {/* Operators Panel */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+        {/* Operators Panel - Flat PowerBI Style */}
+        <div className="bg-white border border-gray-200 p-4 flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-gray-800 text-sm sm:text-base">Field Operators</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Field Operators</h3>
               <button 
                 onClick={() => setShowOperatorModal(true)}
-                className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
+                className="p-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded hover:bg-blue-100 transition-colors cursor-pointer"
               >
-                <FiPlus />
+                <FiPlus size={12} />
               </button>
             </div>
-            <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-[40vh] overflow-y-auto pr-1">
               {operators.map((op) => (
-                <div key={op._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div key={op._id} className="flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200">
                   <div className="max-w-[70%]">
                     <p className="font-bold text-gray-800 truncate text-xs">{op.name}</p>
-                    <p className="text-[10px] text-gray-400 truncate mt-0.5">{op.email}</p>
-                    <p className="text-[10px] text-gray-400 truncate">{op.phoneNumber}</p>
+                    <p className="text-[10px] text-gray-500 font-mono truncate mt-0.5">{op.email}</p>
+                    <p className="text-[10px] text-gray-400 font-mono truncate">{op.phoneNumber}</p>
                   </div>
                   <button 
                     onClick={() => handleDeleteOperator(op._id, op.name)}
-                    className="p-2 border border-red-50 hover:bg-red-50 text-red-500 rounded-lg cursor-pointer"
+                    className="p-1.5 border border-red-200 hover:bg-red-50 text-red-500 rounded cursor-pointer"
                   >
-                    <FiTrash2 size={13} />
+                    <FiTrash2 size={12} />
                   </button>
                 </div>
               ))}
               {operators.length === 0 && (
-                <p className="text-xs text-gray-400 text-center py-8">No operator staff registered</p>
+                <p className="text-[11px] text-gray-400 text-center py-8">No operator staff registered</p>
               )}
             </div>
           </div>
-          <div className="pt-4 border-t border-gray-100 mt-6">
+          <div className="pt-3 border-t border-gray-200 mt-4">
             <p className="text-[10px] text-gray-400 leading-relaxed">
               Operators can login using their phone numbers as initial passwords to report sanitization events and maintenance checks.
             </p>

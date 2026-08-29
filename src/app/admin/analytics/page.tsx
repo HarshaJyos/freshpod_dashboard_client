@@ -263,32 +263,32 @@ export default function AdminAnalytics() {
         </div>
       )}
 
-      {/* Aggregate Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* Aggregate Stats - Flat PowerBI Style */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Aggregate Taps", val: analyticsData.totalTaps.toLocaleString(), sub: `Avg ${analyticsData.averageTapsPerMachine} / machine`, icon: <FiActivity />, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Total Yield", val: `₹${analyticsData.totalRevenue.toLocaleString()}`, sub: "Period Revenue", icon: <FiDollarSign />, color: "text-green-600", bg: "bg-green-50" },
-          { label: "Fleet Uptime", val: `${analyticsData.averageEfficiency.toFixed(1)}%`, sub: `${analyticsData.activeNodes} Active Kiosks`, icon: <FiTarget />, color: "text-purple-600", bg: "bg-purple-50" },
-          { label: "Active Nodes", val: `${analyticsData.activeNodes} / ${Object.keys(machines).length}`, sub: "Fleet Capacity", icon: <FiCpu />, color: "text-orange-600", bg: "bg-orange-50" },
+          { label: "Aggregate Taps", val: analyticsData.totalTaps.toLocaleString(), sub: `Avg ${analyticsData.averageTapsPerMachine} / machine`, icon: <FiActivity /> },
+          { label: "Total Yield", val: `₹${analyticsData.totalRevenue.toLocaleString()}`, sub: "Period Revenue", icon: <FiDollarSign /> },
+          { label: "Fleet Uptime", val: `${analyticsData.averageEfficiency.toFixed(1)}%`, sub: `${analyticsData.activeNodes} Active Kiosks`, icon: <FiTarget /> },
+          { label: "Active Nodes", val: `${analyticsData.activeNodes} / ${Object.keys(machines).length}`, sub: "Fleet Capacity", icon: <FiCpu /> }
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+          <div key={i} className="bg-white p-4 border border-gray-200 flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{stat.label}</p>
-              <p className="text-2xl font-bold text-gray-800 mt-1">{stat.val}</p>
-              <p className="text-[10px] text-gray-400 font-semibold mt-1">{stat.sub}</p>
+              <p className="text-xl font-bold text-gray-800 mt-1 font-mono">{stat.val}</p>
+              <p className="text-[9px] text-gray-400 font-semibold mt-0.5">{stat.sub}</p>
             </div>
-            <span className={`p-3 rounded-xl text-xl ${stat.bg} ${stat.color}`}>{stat.icon}</span>
+            <span className="text-gray-400 text-lg">{stat.icon}</span>
           </div>
         ))}
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Taps Area Chart */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-          <h3 className="font-bold text-gray-800 text-sm sm:text-base mb-6 flex items-center gap-2"><FiTrendingUp /> Telemetry Dispensation Volume</h3>
+        <div className="bg-white p-4 border border-gray-200">
+          <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><FiTrendingUp /> Telemetry Dispensation Volume</h3>
           {mounted && analyticsData.tapsByDate.length > 0 ? (
-            <div className="w-full h-64 sm:h-72">
+            <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={analyticsData.tapsByDate}>
                   <defs>
@@ -301,7 +301,7 @@ export default function AdminAnalytics() {
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
                   <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} />
                   <Tooltip />
-                  <Area type="monotone" dataKey="taps" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTaps)" />
+                  <Area type="monotone" dataKey="taps" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorTaps)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -311,10 +311,10 @@ export default function AdminAnalytics() {
         </div>
 
         {/* Revenue Bar Chart */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-          <h3 className="font-bold text-gray-800 text-sm sm:text-base mb-6 flex items-center gap-2"><FiPieChart /> Revenue Breakdown by Node</h3>
+        <div className="bg-white p-4 border border-gray-200">
+          <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><FiPieChart /> Revenue Breakdown by Node</h3>
           {mounted && analyticsData.revenueByMachine.length > 0 ? (
-            <div className="w-full h-64 sm:h-72">
+            <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={analyticsData.revenueByMachine}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
@@ -322,7 +322,7 @@ export default function AdminAnalytics() {
                   <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} />
                   <Tooltip formatter={(value: any) => [`₹${value}`, 'Revenue']} />
                   <Legend />
-                  <Bar dataKey="revenue" fill="#10B981" radius={[4, 4, 0, 0]} name="Yield (₹)" />
+                  <Bar dataKey="revenue" fill="#10B981" radius={[2, 2, 0, 0]} name="Yield (₹)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -332,22 +332,28 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
-      {/* Sanitization and Fleet Status */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="font-bold text-gray-800 text-sm sm:text-base">Sanitization Fluid Status</h3>
+      {/* Sanitization and Fleet Status in Excel Table Format */}
+      <div className="bg-white border border-gray-200 overflow-hidden">
+        <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+          <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Sanitization Fluid Status</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
+            <colgroup>
+              <col className="w-[30%]" />
+              <col className="w-[20%]" />
+              <col className="w-[35%]" />
+              <col className="w-[15%]" />
+            </colgroup>
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold text-[11px] uppercase tracking-wider">
-                <th className="py-3 px-6">ID / Location</th>
-                <th className="py-3 px-6">Total Taps logged</th>
-                <th className="py-3 px-6">Fluid Capacity Remaining</th>
-                <th className="py-3 px-6">Status</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold text-[10px] uppercase tracking-wider">
+                <th className="py-2.5 px-4 border-r border-gray-200">ID / Location</th>
+                <th className="py-2.5 px-4 border-r border-gray-200 text-right">Total Taps Logged</th>
+                <th className="py-2.5 px-4 border-r border-gray-200">Fluid Capacity Remaining</th>
+                <th className="py-2.5 px-4 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-200">
               {Object.entries(machines).length > 0 ? (
                 Object.entries(machines).map(([id, m]) => {
                   let totalTapsCount = 0;
@@ -356,13 +362,13 @@ export default function AdminAnalytics() {
                   });
 
                   return (
-                    <tr key={id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-4 px-6">
-                        <p className="font-bold text-gray-800">{m.machineId || id}</p>
-                        <p className="text-xs text-gray-400 flex items-center gap-1"><FiMapPin /> {m.location}</p>
+                    <tr key={id} className="hover:bg-gray-50/50 transition-colors text-xs">
+                      <td className="py-2.5 px-4 border-r border-gray-200">
+                        <p className="font-bold text-gray-800 font-mono">{m.machineId || id}</p>
+                        <p className="text-[10px] text-gray-400 flex items-center gap-1"><FiMapPin /> {m.location}</p>
                       </td>
-                      <td className="py-4 px-6 font-medium">{totalTapsCount.toLocaleString()}</td>
-                      <td className="py-4 px-6">
+                      <td className="py-2.5 px-4 border-r border-gray-200 text-right font-mono font-medium">{totalTapsCount.toLocaleString()}</td>
+                      <td className="py-2.5 px-4 border-r border-gray-200 font-mono">
                         <SanitizationIndicator 
                           totalTaps={totalTapsCount} 
                           machineId={m.machineId || id}
@@ -370,9 +376,9 @@ export default function AdminAnalytics() {
                           usagePerTap={m.usagePerTap || 0.012}
                         />
                       </td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-bold rounded-lg uppercase ${
-                          m.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+                      <td className="py-2.5 px-4 text-center">
+                        <span className={`inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase ${
+                          m.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                         }`}>{m.status}</span>
                       </td>
                     </tr>
